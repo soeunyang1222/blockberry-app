@@ -23,7 +23,7 @@ export function Header() {
               href="/dca"
               className="text-sm text-gray-700 hover:text-gray-900 transition-colors"
             >
-              Stack to Bit
+              DCA
             </Link>
             <Link
               href="/investment"
