@@ -64,3 +64,6 @@ next-env.d.ts
 
 # Windows
 Thumbs.db
+
+# Playwright MCP screenshots and artifacts
+.playwright-mcp/

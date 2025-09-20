@@ -2,3 +2,6 @@
 export { Button } from './Button';
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './Card';
 export { FeatureCard } from './FeatureCard';
+export { Input } from './input';
+export { Label } from './label';
+export { Select } from './select';
