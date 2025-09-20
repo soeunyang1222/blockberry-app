@@ -16,7 +16,7 @@ export function Header() {
               <span className="text-lg font-semibold text-gray-900">SuiStack</span>
             </Link>
           </div>
-
+      
           {/* 중앙 네비게이션 */}
           <div className="hidden md:flex items-center space-x-8">
             <Link
@@ -31,12 +31,7 @@ export function Header() {
             >
               Investment
             </Link>
-            <Link
-              href="/portfolio"
-              className="text-sm text-gray-700 hover:text-gray-900 transition-colors"
-            >
-              portfolio
-            </Link>
+  
           </div>
 
           {/* 오른쪽 지갑 연결 버튼 */}
