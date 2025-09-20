@@ -17,7 +17,7 @@ export async function getDataSource(): Promise<DataSource> {
     url: process.env.DATABASE_URL,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     entities: [User, SavingsVault, Deposit, Trade],
-    synchronize: process.env.NODE_ENV === 'development', // 개발 환경에서만 자동 동기화
+    synchronize: false, // 자동 동기화 비활성화 (스키마 충돌 방지)
     logging: process.env.NODE_ENV === 'development',
     cache: {
       duration: 30000, // 30초 캐시

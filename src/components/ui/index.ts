@@ -4,4 +4,5 @@ export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
 export { FeatureCard } from './FeatureCard';
 export { Input } from './input';
 export { Label } from './label';
-export { Select } from './select';
+export { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectLabel, SelectSeparator } from './select';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';

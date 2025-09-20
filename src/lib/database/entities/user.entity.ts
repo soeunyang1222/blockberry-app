@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from 'typeorm';
-import { SavingsVault } from './savings-vault.entity';
-import { Deposit } from './deposit.entity';
-import { Trade } from './trade.entity';
+import type { SavingsVault } from './savings-vault.entity';
+import type { Deposit } from './deposit.entity';
+import type { Trade } from './trade.entity';
 
 @Entity('users')
 export class User {
@@ -15,12 +15,12 @@ export class User {
   created_at: Date;
 
   // Relations
-  @OneToMany(() => SavingsVault, savingsVault => savingsVault.user)
+  @OneToMany('SavingsVault', 'user')
   savings_vaults: SavingsVault[];
 
-  @OneToMany(() => Deposit, deposit => deposit.user)
+  @OneToMany('Deposit', 'user')
   deposits: Deposit[];
 
-  @OneToMany(() => Trade, trade => trade.user)
+  @OneToMany('Trade', 'user')
   trades: Trade[];
 }
