@@ -29,7 +29,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
         password: configService.get('DB_PASSWORD', 'npg_fFetlZ8HJLY1'),
         database: configService.get('DB_DATABASE', 'neondb'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get('NODE_ENV') === 'development',
+        synchronize: false, // 임시로 비활성화
         logging: configService.get('NODE_ENV') === 'development',
         ssl: {
           rejectUnauthorized: false,
