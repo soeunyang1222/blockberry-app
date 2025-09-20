@@ -23,6 +23,18 @@ export interface RecurringOrder {
   nextExecution: Date;
 }
 
+export interface Transaction {
+  id: string;
+  type: 'buy' | 'sell';
+  asset: string;
+  amount: number;
+  currency: string;
+  price: number;
+  total: number;
+  date: Date;
+  status: 'completed' | 'pending' | 'failed';
+}
+
 export interface InvestmentPortfolio {
   stats: PortfolioStats;
   assets: PortfolioAsset[];
