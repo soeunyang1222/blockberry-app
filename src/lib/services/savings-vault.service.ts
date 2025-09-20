@@ -59,7 +59,6 @@ export class SavingsVaultService {
     const repository = await this.getSavingsVaultRepository();
     return await repository.find({
       where: { user_id },
-      relations: ['trades'],
       order: { created_at: 'DESC' },
     });
   }

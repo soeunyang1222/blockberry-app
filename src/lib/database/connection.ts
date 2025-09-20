@@ -19,9 +19,9 @@ export async function getDataSource(): Promise<DataSource> {
   console.log('DB_DATABASE:', process.env.DB_DATABASE);
   console.log('NODE_ENV:', process.env.NODE_ENV);
 
-  // DATABASE_URL이 없으면 개별 환경변수로 구성
+  // 환경변수가 로드되지 않으면 하드코딩된 값 사용 (임시)
   const databaseUrl = process.env.DATABASE_URL || 
-    `postgresql://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}?sslmode=require&channel_binding=require`;
+    `postgresql://${process.env.DB_USERNAME || 'neondb_owner'}:${process.env.DB_PASSWORD || 'npg_fFetlZ8HJLY1'}@${process.env.DB_HOST || 'ep-quiet-breeze-a18y720j-pooler.ap-southeast-1.aws.neon.tech'}:${process.env.DB_PORT || '5432'}/${process.env.DB_DATABASE || 'neondb'}?sslmode=require&channel_binding=require`;
 
   console.log('Final database URL:', databaseUrl);
 
