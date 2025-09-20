@@ -1,50 +1,38 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, OneToMany, JoinColumn, Index } from 'typeorm';
 import type { User } from './user.entity';
-import type { Deposit } from './deposit.entity';
 import type { Trade } from './trade.entity';
 
 @Entity('savings_vault')
+@Index('idx_savings_vault_user_id', ['user_id'])
 export class SavingsVault {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   vault_id: number;
 
-  @Column()
+  @Column({ type: 'bigint' })
   user_id: number;
 
-  @Column()
+  @Column({ type: 'varchar', length: 100 })
   vault_name: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 20 })
   target_token: string;
 
-  @Column()
-  interval_days: number;
-
-  @Column()
+  @Column({ type: 'decimal', precision: 18, scale: 2 })
   amount_fiat: number;
 
-  @Column()
+  @Column({ type: 'varchar', length: 10, default: 'USDC' })
   fiat_symbol: string;
 
-  @Column()
-  duration_days: number;
-
-  @Column({ default: 0 })
-  total_deposit: number;
-
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
   active: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   created_at: Date;
 
   // Relations
   @ManyToOne('User', 'savings_vaults')
   @JoinColumn({ name: 'user_id' })
   user: User;
-
-  @OneToMany('Deposit', 'savings_vault')
-  deposits: Deposit[];
 
   @OneToMany('Trade', 'savings_vault')
   trades: Trade[];

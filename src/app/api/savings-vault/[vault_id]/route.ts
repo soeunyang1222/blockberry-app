@@ -1,16 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { savingsVaultService } from '@/lib/services/savings-vault.service';
-import { z } from 'zod';
-
-const UpdateSavingsVaultSchema = z.object({
-  vault_name: z.string().min(1).optional(),
-  target_token: z.string().min(1).optional(),
-  interval_days: z.number().positive().optional(),
-  amount_fiat: z.number().positive().optional(),
-  fiat_symbol: z.string().min(1).optional(),
-  duration_days: z.number().positive().optional(),
-  active: z.boolean().optional(),
-});
 
 interface RouteParams {
   params: {
@@ -18,11 +7,44 @@ interface RouteParams {
   };
 }
 
+/**
+ * @swagger
+ * /api/savings-vault/{vault_id}:
+ *   get:
+ *     tags: [SavingsVault]
+ *     summary: 특정 저금통 조회
+ *     description: 저금통 ID로 특정 저금통 정보를 조회합니다.
+ *     parameters:
+ *       - in: path
+ *         name: vault_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 저금통 ID
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: 저금통 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/SavingsVault'
+ *       400:
+ *         description: 잘못된 저금통 ID
+ *       404:
+ *         description: 저금통을 찾을 수 없음
+ *       500:
+ *         description: 서버 오류
+ */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const vault_id = parseInt(params.vault_id);
-    const { searchParams } = new URL(request.url);
-    const withDetails = searchParams.get('with_details');
     
     if (isNaN(vault_id)) {
       return NextResponse.json(
@@ -34,14 +56,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
     
-    let savingsVault;
-    
-    // 상세 정보 포함 조회
-    if (withDetails === 'true') {
-      savingsVault = await savingsVaultService.findVaultWithDetails(vault_id);
-    } else {
-      savingsVault = await savingsVaultService.findOne(vault_id);
-    }
+    const savingsVault = await savingsVaultService.findOne(vault_id);
     
     if (!savingsVault) {
       return NextResponse.json(
@@ -69,64 +84,41 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
-  try {
-    const vault_id = parseInt(params.vault_id);
-    
-    if (isNaN(vault_id)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid vault ID',
-        },
-        { status: 400 }
-      );
-    }
-    
-    const body = await request.json();
-    const validatedData = UpdateSavingsVaultSchema.parse(body);
-    
-    const updatedSavingsVault = await savingsVaultService.update(vault_id, validatedData);
-    
-    if (!updatedSavingsVault) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Savings vault not found',
-        },
-        { status: 404 }
-      );
-    }
-    
-    return NextResponse.json({
-      success: true,
-      data: updatedSavingsVault,
-      message: 'Savings vault updated successfully',
-    });
-  } catch (error) {
-    console.error('Error updating savings vault:', error);
-    
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Validation error',
-          details: error.errors,
-        },
-        { status: 400 }
-      );
-    }
-    
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to update savings vault',
-      },
-      { status: 500 }
-    );
-  }
-}
-
+/**
+ * @swagger
+ * /api/savings-vault/{vault_id}:
+ *   delete:
+ *     tags: [SavingsVault]
+ *     summary: 저금통 삭제
+ *     description: 특정 저금통을 삭제합니다.
+ *     parameters:
+ *       - in: path
+ *         name: vault_id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 저금통 ID
+ *     responses:
+ *       200:
+ *         description: 저금통 삭제 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Savings vault deleted successfully"
+ *       400:
+ *         description: 잘못된 요청
+ *       404:
+ *         description: 저금통을 찾을 수 없음
+ *       500:
+ *         description: 서버 오류
+ */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const vault_id = parseInt(params.vault_id);
@@ -169,3 +161,4 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     );
   }
 }
+

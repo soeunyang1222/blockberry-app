@@ -11,6 +11,7 @@ export interface CreateTradeDto {
   token_amount: number;
   price_executed: number;
   tx_hash: string;
+  cycle_index: number;
 }
 
 export class TradeService {

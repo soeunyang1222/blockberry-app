@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 const CreateUserSchema = z.object({
   wallet_address: z.string().min(1, 'Wallet address is required'),
+  virtual_account_address: z.string().optional(),
 });
 
 /**
@@ -74,6 +75,10 @@ export async function GET() {
  *                 type: string
  *                 description: 지갑 주소
  *                 example: "0x1234567890abcdef1234567890abcdef12345678"
+ *               virtual_account_address:
+ *                 type: string
+ *                 description: 가상 계좌 주소 (선택사항)
+ *                 example: "VA1234567890"
  *     responses:
  *       201:
  *         description: 사용자 생성 성공
@@ -104,7 +109,23 @@ export async function POST(request: NextRequest) {
     // 입력 데이터 검증
     const validatedData = CreateUserSchema.parse(body);
     
-    const user = await userService.create(validatedData);
+    // 중복 체크: 동일한 wallet_address가 이미 존재하는지 확인
+    const existingUser = await userService.findByWalletAddress(validatedData.wallet_address);
+    if (existingUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'User with this wallet address already exists',
+          message: '유저 정보가 이미 존재합니다. 유저 생성에 실패했습니다.',
+        },
+        { status: 409 }
+      );
+    }
+    
+    const user = await userService.create({
+      wallet_address: validatedData.wallet_address,
+      virtual_account_address: validatedData.virtual_account_address,
+    });
     
     return NextResponse.json(
       {
@@ -133,6 +154,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: 'User with this wallet address already exists',
+          message: '유저 정보가 이미 존재합니다. 유저 생성에 실패했습니다.',
         },
         { status: 409 }
       );
