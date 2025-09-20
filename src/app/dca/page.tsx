@@ -1,6 +1,6 @@
 'use client'
 
-import { DCABuyForm } from '@/components/dca/DCABuyForm'
+import { DCABuyForm } from '@/components/dca/DCABuyFormQuery'
 import { Card } from '@/components/ui'
 
 export default function DCAPage() {

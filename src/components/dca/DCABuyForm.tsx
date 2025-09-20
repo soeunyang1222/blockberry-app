@@ -6,10 +6,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ChevronDown, Check, X, AlertCircle, Wallet } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { formatUSD, formatUSDC, formatNumber } from '@/lib/utils/format'
 import * as Tabs from '@radix-ui/react-tabs'
 import * as Select from '@radix-ui/react-select'
-import { useUSDCBalance } from '@/hooks/useUSDCBalance'
-import { useCurrentAccount } from '@mysten/dapp-kit'
+
 
 type Period = 'month' | 'week'
 type OrderStatus = 'idle' | 'processing' | 'success' | 'error'
@@ -28,41 +28,39 @@ export function DCABuyForm() {
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [totalAmount, setTotalAmount] = useState<number>(400)
 
-  // Sui 지갑에서 실제 USDC 잔액 가져오기
-  const {
-    balance: usdcBalance,
-    isLoading: isLoadingBalance,
-    isConnected,
-    allBalances,
-    address
-  } = useUSDCBalance()
-  const account = useCurrentAccount()
-
-  // 디버깅: 콘솔에 잔액 정보 출력
-  useEffect(() => {
-    console.log('=== 지갑 연결 상태 디버깅 ===')
-    console.log('useCurrentAccount() account:', account)
-    console.log('useUSDCBalance isConnected:', isConnected)
-    console.log('useUSDCBalance address:', address)
-    console.log('useUSDCBalance allBalances:', allBalances)
-    console.log('USDC balance:', usdcBalance)
-    console.log('isLoadingBalance:', isLoadingBalance)
-    console.log('================================')
-  }, [account, isConnected, address, allBalances, usdcBalance, isLoadingBalance])
-
-  // 지갑 잔액 상태 (USDC는 실제 지갑에서, BTC는 mock)
+  // 지갑 잔액 상태 - Mock API에서 가져오기
   const [walletBalance, setWalletBalance] = useState<WalletBalance>({
     usdc: 0,
-    btc: 0.00125
+    btc: 0
   })
+  const [isLoadingBalance, setIsLoadingBalance] = useState(true)
+  const isConnected = true // Mock 연결 상태
 
-  // 실제 USDC 잔액 업데이트
+  // Mock API에서 지갑 잔액 가져오기
   useEffect(() => {
-    setWalletBalance(prev => ({
-      ...prev,
-      usdc: usdcBalance
-    }))
-  }, [usdcBalance])
+    const fetchWalletBalance = async () => {
+      try {
+        const response = await fetch('/api/wallet/balance')
+        const result = await response.json()
+        
+        if (result.success) {
+          const usdcBalance = result.data.balances.find((b: any) => b.symbol === 'USDC')
+          const btcBalance = result.data.balances.find((b: any) => b.symbol === 'WBTC')
+          
+          setWalletBalance({
+            usdc: usdcBalance?.amount || 0,
+            btc: btcBalance?.amount || 0
+          })
+        }
+      } catch (error) {
+        console.error('Failed to fetch wallet balance:', error)
+      } finally {
+        setIsLoadingBalance(false)
+      }
+    }
+
+    fetchWalletBalance()
+  }, [])
 
   // Calculate total amount based on period (daily purchases)
   useEffect(() => {
@@ -103,16 +101,36 @@ export function DCABuyForm() {
 
     setOrderStatus('processing')
 
-    // Mock API call
-    setTimeout(() => {
-      const isSuccess = Math.random() > 0.1
+    // Call mock API to create DCA order
+    try {
+      const response = await fetch('/api/dca/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          frequency: period === 'month' ? 'monthly' : 'weekly',
+          amount: buyAmount,
+          fromAsset: 'USDC',
+          toAsset: activeTab === 'stack-to-bit' ? 'WBTC' : 'SUI'
+        })
+      })
 
-      if (isSuccess) {
+      const result = await response.json()
+
+      if (result.success) {
         setOrderStatus('success')
-        setWalletBalance(prev => ({
-          usdc: prev.usdc - totalAmount,
-          btc: prev.btc + (totalAmount / 50000)
-        }))
+        // Refresh wallet balance
+        const balanceResponse = await fetch('/api/wallet/balance')
+        const balanceResult = await balanceResponse.json()
+        if (balanceResult.success) {
+          const usdcBalance = balanceResult.data.balances.find((b: any) => b.symbol === 'USDC')
+          const btcBalance = balanceResult.data.balances.find((b: any) => b.symbol === 'WBTC')
+          setWalletBalance({
+            usdc: usdcBalance?.amount || 0,
+            btc: btcBalance?.amount || 0
+          })
+        }
 
         setTimeout(() => {
           setBuyAmount(100)
@@ -120,13 +138,20 @@ export function DCABuyForm() {
         }, 3000)
       } else {
         setOrderStatus('error')
-        setErrorMessage('Transaction failed')
+        setErrorMessage(result.error || 'Transaction failed')
         setTimeout(() => {
           setOrderStatus('idle')
           setErrorMessage('')
         }, 3000)
       }
-    }, 1500)
+    } catch (error) {
+      setOrderStatus('error')
+      setErrorMessage('Failed to create DCA order')
+      setTimeout(() => {
+        setOrderStatus('idle')
+        setErrorMessage('')
+      }, 3000)
+    }
   }
 
   const getStatusColor = () => {
@@ -176,7 +201,7 @@ export function DCABuyForm() {
                 "flex-1 py-4 px-6 text-sm font-medium transition-colors relative data-[state=active]:text-gray-900 data-[state=active]:bg-white data-[state=inactive]:text-gray-500 data-[state=inactive]:bg-gray-50"
               )}
             >
-              Stack to USDC
+              Stack to BTC
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900 data-[state=inactive]:opacity-0 data-[state=active]:opacity-100"></div>
             </Tabs.Trigger>
             <Tabs.Trigger 
@@ -229,13 +254,13 @@ export function DCABuyForm() {
           {/* I want to buy Section */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <h3 className="text-gray-700 font-medium">I want to buy</h3>
+              <h3 className="text-gray-700 font-medium">Available Balance</h3>
               <div className="text-xs text-gray-500">
                 {isConnected ? (
                   isLoadingBalance ? (
                     <span className="animate-pulse">Loading balance...</span>
                   ) : (
-                    <span>You can buy up to ${calculateMaxDailyAmount().toFixed(2)} per day</span>
+                    <span className="text-lg font-semibold text-gray-800">{formatUSDC(walletBalance.usdc)}</span>
                   )
                 ) : (
                   <span className="text-orange-500 flex items-center gap-1">
@@ -305,7 +330,7 @@ export function DCABuyForm() {
                   ? "text-red-500"
                   : "text-green-500"
               )}>
-                ${totalAmount.toFixed(2)}
+                {formatUSD(totalAmount)}
               </div>
             </div>
             {isConnected && (
@@ -318,10 +343,10 @@ export function DCABuyForm() {
                 {totalAmount > walletBalance.usdc ? (
                   <>
                     <AlertCircle className="inline w-3 h-3 mr-1" />
-                    Insufficient balance: ${walletBalance.usdc.toFixed(2)} USDC available
+                    Insufficient balance: {formatUSDC(walletBalance.usdc)} available
                   </>
                 ) : (
-                  `Available balance: ${walletBalance.usdc.toFixed(2)} USDC`
+                  `Available balance: ${formatUSDC(walletBalance.usdc)}`
                 )}
               </div>
             )}

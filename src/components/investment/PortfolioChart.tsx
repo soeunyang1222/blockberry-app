@@ -10,25 +10,28 @@ interface PortfolioChartProps {
 
 export function PortfolioChart({ assets }: PortfolioChartProps) {
   const RADIAN = Math.PI / 180;
-  
+
+  // Only show label if percentage is significant (> 5%)
   const renderCustomizedLabel = ({
     cx, cy, midAngle, innerRadius, outerRadius, percent
   }: any) => {
+    if (percent < 0.05) return null; // Don't show label for small percentages
+
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
-        fontSize={12}
+        fontSize={14}
         fontWeight="bold"
       >
-        {`${(percent * 100).toFixed(0)}%`}
+        {`${(percent * 100).toFixed(1)}%`}
       </text>
     );
   };

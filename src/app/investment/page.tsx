@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { PortfolioOverview } from '@/components/investment/PortfolioOverview';
-import { RecurringOrders } from '@/components/investment/RecurringOrders';
+import { PortfolioOverview } from '@/components/investment/PortfolioOverviewQuery';
+import { RecurringOrders } from '@/components/investment/RecurringOrdersQuery';
 
 export default function InvestmentPage() {
   return (

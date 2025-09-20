@@ -1,65 +1,104 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { RecurringOrder, Transaction } from '@/types/investment';
+import { formatUSD, formatUSDC, formatNumber } from '@/lib/utils/format';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs';
 
 export function RecurringOrders() {
-  // 임시 데이터 - 실제 앱에서는 API에서 가져올 것
-  const recurringOrders: RecurringOrder[] = [
-    {
-      id: '1',
-      asset: 'Bitcoin',
-      frequency: 'weekly',
-      amount: 10.00,
-      currency: 'USD',
-      nextExecution: new Date('2024-03-25')
-    },
-    {
-      id: '2',
-      asset: 'Bitcoin',
-      frequency: 'monthly',
-      amount: 50.00,
-      currency: 'USDC',
-      nextExecution: new Date('2024-04-01')
-    }
-  ];
+  const [recurringOrders, setRecurringOrders] = useState<RecurringOrder[]>([]);
+  const [lastTransactions, setLastTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const lastTransactions: Transaction[] = [
-    {
-      id: '1',
-      type: 'buy',
-      asset: 'Bitcoin',
-      amount: 0.0025,
-      currency: 'USDC',
-      price: 42000,
-      total: 105.00,
-      date: new Date('2024-03-20'),
-      status: 'completed'
-    },
-    {
-      id: '2',
-      type: 'buy',
-      asset: 'Ethereum',
-      amount: 0.05,
-      currency: 'USDC',
-      price: 3000,
-      total: 150.00,
-      date: new Date('2024-03-18'),
-      status: 'completed'
-    },
-    {
-      id: '3',
-      type: 'sell',
-      asset: 'Bitcoin',
-      amount: 0.001,
-      currency: 'USDC',
-      price: 41500,
-      total: 41.50,
-      date: new Date('2024-03-15'),
-      status: 'completed'
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      // Fetch both DCA orders and transactions in parallel
+      const [ordersRes, transactionsRes] = await Promise.all([
+        fetch('/api/dca/orders'),
+        fetch('/api/transactions?limit=5')
+      ]);
+
+      const ordersResult = await ordersRes.json();
+      const transactionsResult = await transactionsRes.json();
+
+      if (ordersResult.success) {
+        // Transform DCA orders to RecurringOrder format
+        const orders = ordersResult.data.orders.map((order: any) => ({
+          id: order.id,
+          asset: order.toAsset === 'WBTC' ? 'Bitcoin' : order.toAsset,
+          frequency: order.frequency,
+          amount: order.amount,
+          currency: order.fromAsset,
+          nextExecution: order.nextExecution ? new Date(order.nextExecution) : null
+        }));
+        setRecurringOrders(orders.filter((o: any) => o.nextExecution)); // Only show active orders
+      }
+
+      if (transactionsResult.success) {
+        // Transform transactions data
+        const transactions = transactionsResult.data.transactions.map((tx: any) => ({
+          id: tx.id,
+          type: tx.type,
+          asset: tx.asset === 'WBTC' ? 'Bitcoin' : tx.asset,
+          amount: tx.amount,
+          currency: 'USDC',
+          price: tx.price,
+          total: tx.value,
+          date: new Date(tx.date),
+          status: tx.status
+        }));
+        setLastTransactions(transactions);
+      }
+
+      if (!ordersResult.success || !transactionsResult.success) {
+        setError('Failed to fetch some data');
+      }
+    } catch (err) {
+      setError('Failed to connect to server');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchData();
+
+    // Refetch data when page becomes visible (e.g., when user switches tabs or navigates back)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchData();
+      }
+    };
+
+    const handleFocus = () => {
+      fetchData();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+          <div className="space-y-3">
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const formatCurrency = (amount: number, currency: string) => {
     if (currency === 'USD') {
