@@ -5,23 +5,19 @@
 프로젝트 루트 디렉토리에 `.env` 파일을 생성하고 다음 내용을 추가하세요:
 
 ```env
-# Database Configuration (Neon PostgreSQL)
-DB_HOST=ep-quiet-breeze-a18y720j-pooler.ap-southeast-1.aws.neon.tech
-DB_PORT=5432
-DB_USERNAME=neondb_owner
-DB_PASSWORD=your_password_here
-DB_DATABASE=neondb
+# 환경 변수 파일 생성
+cp env.example .env
 
-# Blockberry API Configuration
-BLOCKBERRY_API_BASE_URL=https://api.blockberry.one/sui/v1
-BLOCKBERRY_API_KEY=your_api_key_here
-
-# Application Configuration
-PORT=3000
-NODE_ENV=development
+# 생성된 .env 파일을 편집하여 실제 값으로 변경하세요
+# DB_HOST=your_actual_host
+# DB_PASSWORD=your_actual_password  
+# BLOCKBERRY_API_KEY=your_actual_api_key
 ```
 
-**중요**: `DB_PASSWORD`와 `BLOCKBERRY_API_KEY`를 실제 값으로 변경해주세요.
+**⚠️ 보안 주의사항**: 
+- `.env` 파일에는 민감한 정보가 포함되어 있습니다
+- 절대 `.env` 파일을 git에 커밋하지 마세요
+- `env.example` 파일만 참고용으로 사용하세요
 
 ## 2. PostgreSQL 데이터베이스 설정
 

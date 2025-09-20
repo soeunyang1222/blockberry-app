@@ -39,24 +39,16 @@ npm install
 
 ### 2. 환경 변수 설정
 
-프로젝트 루트에 `.env` 파일을 생성하고 다음 내용을 추가하세요:
+프로젝트 루트에 `.env` 파일을 생성하고 `env.example`을 참고하여 실제 값으로 설정하세요:
 
-```env
-# Database Configuration (Neon Cloud)
-DB_HOST=ep-quiet-breeze-a18y720j-pooler.ap-southeast-1.aws.neon.tech
-DB_PORT=5432
-DB_USERNAME=neondb_owner
-DB_PASSWORD=npg_fFetlZ8HJLY1
-DB_DATABASE=neondb
+```bash
+# .env 파일 생성
+cp env.example .env
 
-# Blockberry API Configuration
-BLOCKBERRY_API_BASE_URL=https://api.blockberry.one/sui/v1
-BLOCKBERRY_API_KEY=your_api_key_here
-
-# Application Configuration
-PORT=3000
-NODE_ENV=development
+# .env 파일을 편집하여 실제 값으로 변경
 ```
+
+**중요**: `.env` 파일에는 민감한 정보가 포함되어 있으므로 절대 git에 커밋하지 마세요.
 
 ### 3. 애플리케이션 실행
 
