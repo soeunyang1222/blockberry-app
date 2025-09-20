@@ -14,6 +14,8 @@
 - **가상의 CEX 매수와 비교** (업비트/빗썸 고정 시각 매수)
 - **사용자 거래내역 표시**
 - **"알파" 표시** (가장 저렴한 경로로 얻은 추가 BTC)
+- **DeepBook 거래 자동 동기화** (사용자 지갑 주소 기반)
+- **실시간 트랜잭션 모니터링** (Sui 메인넷/테스트넷)
 
 ## 🏗️ 기술 스택
 
@@ -32,7 +34,8 @@ Database & ORM:
   - TypeORM
 
 Blockchain:
-  - Sui Network
+  - Sui Network (메인넷/테스트넷)
+  - DeepBook DEX 연동
   - Cetus Protocol (예정)
 
 Development:
@@ -51,13 +54,17 @@ blockberry-app/
 │   │   │   ├── users/
 │   │   │   ├── savings-vault/
 │   │   │   ├── deposits/
-│   │   │   └── trades/
+│   │   │   ├── trades/
+│   │   │   └── scheduler/     # 트랜잭션 동기화 스케줄러
 │   │   ├── dashboard/         # DCA 대시보드 페이지들
 │   │   ├── layout.tsx         # 루트 레이아웃
 │   │   └── page.tsx           # 홈페이지
 │   ├── lib/                   # 라이브러리 & 유틸리티
 │   │   ├── database/          # TypeORM 설정 & 엔티티
 │   │   ├── services/          # 비즈니스 로직
+│   │   │   ├── transaction-sync.service.ts  # 트랜잭션 동기화
+│   │   │   ├── sui-rpc.service.ts          # Sui RPC 연동
+│   │   │   └── trade.service.ts            # 거래 관리
 │   │   └── utils/
 │   ├── components/            # React 컴포넌트
 │   └── types/                # TypeScript 타입 정의
@@ -91,7 +98,8 @@ cp env.local.example .env.local
 **필수 환경 변수:**
 ```bash
 DATABASE_URL="postgresql://username:password@hostname:port/database?sslmode=require"
-SUI_NETWORK="devnet"
+SUI_RPC_URL="https://fullnode.mainnet.sui.io:443"  # 또는 테스트넷
+SUI_NETWORK="mainnet"  # 또는 "testnet"
 NODE_ENV="development"
 ```
 
@@ -138,7 +146,16 @@ pnpm start
 ### 거래 관리 (`/api/trades`)
 - `POST /api/trades` - 거래 생성
 - `GET /api/trades` - 모든 거래 조회
-- `GET /api/trades/[trade_id]` - 거래 조회
+- `GET /api/trades?recent=true&limit=10` - 최근 거래 조회
+- `GET /api/trades?user_id=1` - 사용자별 거래 조회
+- `GET /api/trades?vault_id=1` - 저금고별 거래 조회
+
+### 스케줄러 관리 (`/api/scheduler`)
+- `GET /api/scheduler` - 스케줄러 상태 조회
+- `POST /api/scheduler` - 스케줄러 초기화/수동 동기화
+  - `{"action": "initialize"}` - 스케줄러 초기화
+  - `{"action": "manual_sync", "limit": 100}` - 수동 동기화
+  - `{"action": "test_transaction", "tx_digest": "..."}` - 특정 트랜잭션 테스트
 
 ## 📊 API 응답 형식
 
@@ -160,13 +177,45 @@ pnpm start
 }
 ```
 
+## 🔄 트랜잭션 동기화 시스템
+
+### 자동 동기화 프로세스
+1. **사용자 지갑 주소 수집**: 등록된 모든 사용자의 지갑 주소를 가져옵니다
+2. **트랜잭션 조회**: 각 지갑 주소별로 Sui RPC를 통해 최근 트랜잭션을 조회합니다
+3. **DeepBook 거래 필터링**: 트랜잭션 이벤트에서 DeepBook 관련 거래를 감지합니다
+4. **DB 저장**: DeepBook 거래로 확인되면 `trades` 테이블에 자동 저장됩니다
+
+### 지원하는 네트워크
+- **메인넷**: `https://fullnode.mainnet.sui.io:443`
+- **테스트넷**: `https://fullnode.testnet.sui.io:443`
+
+### 테스트 방법
+```bash
+# 특정 트랜잭션 분석 (DB 저장 안함)
+curl -X POST http://localhost:3000/api/scheduler \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "test_transaction",
+    "tx_digest": "EW3wKriKhoJ7AoDrRLb4HkvXj8Z2xZpsvQ6GbEveNCjd"
+  }'
+
+# 트랜잭션 분석 + DB 저장
+curl -X POST http://localhost:3000/api/scheduler \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "test_transaction",
+    "tx_digest": "EW3wKriKhoJ7AoDrRLb4HkvXj8Z2xZpsvQ6GbEveNCjd",
+    "save_to_db": true
+  }'
+```
+
 ## 🗄️ 데이터베이스 스키마
 
 ### 주요 테이블
 - `users` - 사용자 정보 (지갑 주소 기반)
 - `savings_vault` - DCA 저금고 설정
 - `deposits` - 입금 내역
-- `trades` - 거래 내역
+- `trades` - 거래 내역 (DeepBook 동기화 포함)
 
 ### 관계도
 ```
@@ -215,20 +264,25 @@ pnpm start
 - [x] 입금/거래 관리 API
 - [x] 기본 대시보드 UI
 - [x] API Routes 변환 완료
+- [x] Sui RPC 서비스 연동
+- [x] 트랜잭션 동기화 서비스
+- [x] DeepBook 거래 자동 감지
+- [x] 스케줄러 API (초기화/수동 동기화/테스트)
 
 ### 🔄 진행 중인 기능
-- [ ] 입금/거래 API Routes 완성
+- [ ] DeepBook 이벤트 데이터 파싱 로직 완성
+- [ ] 실제 거래 금액/토큰 정보 추출
 - [ ] 저금고 생성/관리 UI
 - [ ] 포트폴리오 대시보드
 - [ ] 가격 API 연동
 
 ### 📋 예정된 기능
-- [ ] Sui 블록체인 연동
 - [ ] Cetus Aggregator 통합
 - [ ] 실시간 가격 피드
-- [ ] 자동 스케줄링 시스템
+- [ ] 자동 스케줄링 시스템 (주기적 동기화)
 - [ ] CEX 가격 비교
 - [ ] 모바일 반응형 UI 개선
+- [ ] 트랜잭션 알림 시스템
 
 ## 🤝 기여하기
 
