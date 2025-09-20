@@ -13,9 +13,30 @@ const CreateSavingsVaultSchema = z.object({
   active: z.boolean().optional(),
 });
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const savingsVaults = await savingsVaultService.findAll();
+    const { searchParams } = new URL(request.url);
+    const user_id = searchParams.get('user_id');
+    const available = searchParams.get('available');
+
+    let savingsVaults;
+    
+    // 조회 가능한 저금통만 조회 (active = true)
+    if (available === 'true') {
+      if (user_id) {
+        savingsVaults = await savingsVaultService.findAvailableVaultsByUser(parseInt(user_id));
+      } else {
+        savingsVaults = await savingsVaultService.findAllAvailableVaults();
+      }
+    } else {
+      // 모든 저금통 조회
+      if (user_id) {
+        savingsVaults = await savingsVaultService.findByUserId(parseInt(user_id));
+      } else {
+        savingsVaults = await savingsVaultService.findAll();
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: savingsVaults,

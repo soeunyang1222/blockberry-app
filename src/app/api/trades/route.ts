@@ -18,8 +18,8 @@ const CreateTradeSchema = z.object({
  * /api/trades:
  *   get:
  *     tags: [Trades]
- *     summary: 모든 거래 내역 조회
- *     description: 등록된 모든 거래 내역을 조회합니다.
+ *     summary: 거래 내역 조회
+ *     description: 거래 내역을 조회합니다. 최근 거래내역 조회도 지원합니다.
  *     parameters:
  *       - in: query
  *         name: user_id
@@ -31,6 +31,17 @@ const CreateTradeSchema = z.object({
  *         schema:
  *           type: integer
  *         description: 저금고 ID로 필터링
+ *       - in: query
+ *         name: recent
+ *         schema:
+ *           type: boolean
+ *         description: 최근 거래내역만 조회할지 여부 (true/false)
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: 최근 거래내역 조회 시 가져올 거래 수 (recent=true일 때만 적용)
  *     responses:
  *       200:
  *         description: 거래 내역 조회 성공
@@ -54,14 +65,30 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const user_id = searchParams.get('user_id');
     const vault_id = searchParams.get('vault_id');
+    const recent = searchParams.get('recent');
+    const limit = searchParams.get('limit');
 
     let trades;
-    if (user_id) {
-      trades = await tradeService.findByUserId(parseInt(user_id));
-    } else if (vault_id) {
-      trades = await tradeService.findByVaultId(parseInt(vault_id));
+    
+    // 최근 거래내역 조회
+    if (recent === 'true') {
+      const limitNum = limit ? parseInt(limit) : 10;
+      if (user_id) {
+        trades = await tradeService.getRecentTradesByUser(parseInt(user_id), limitNum);
+      } else if (vault_id) {
+        trades = await tradeService.getRecentTradesByVault(parseInt(vault_id), limitNum);
+      } else {
+        trades = await tradeService.getRecentTrades(undefined, undefined, limitNum);
+      }
     } else {
-      trades = await tradeService.findAll();
+      // 기존 거래내역 조회
+      if (user_id) {
+        trades = await tradeService.findByUserId(parseInt(user_id));
+      } else if (vault_id) {
+        trades = await tradeService.findByVaultId(parseInt(vault_id));
+      } else {
+        trades = await tradeService.findAll();
+      }
     }
 
     return NextResponse.json({
