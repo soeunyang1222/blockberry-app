@@ -1,8 +1,11 @@
+'use client';
+
 import Link from 'next/link';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { QuickActionCard } from '@/components/dashboard/QuickActionCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { WalletBalance } from '@/components/wallet';
 
 export default function DashboardPage() {
   const stats = [
@@ -73,24 +76,30 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <QuickActionCard actions={quickActions} />
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-medium text-gray-900">
-              최근 활동
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm text-gray-500 space-y-2">
-              <p>아직 활동 내역이 없습니다.</p>
-              <p>첫 번째 저금고를 만들어 DCA 투자를 시작해보세요!</p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Wallet Balance */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="lg:col-span-2">
+          <QuickActionCard actions={quickActions} />
+        </div>
+        <div className="lg:col-span-1">
+          <WalletBalance />
+        </div>
       </div>
+
+      {/* Recent Activity */}
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle className="text-lg font-medium text-gray-900">
+            최근 활동
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm text-gray-500 space-y-2">
+            <p>아직 활동 내역이 없습니다.</p>
+            <p>첫 번째 저금고를 만들어 DCA 투자를 시작해보세요!</p>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Current Savings Vaults */}
       <Card>

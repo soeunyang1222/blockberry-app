@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { WalletConnect } from '@/components/wallet';
 
 export function Header() {
   return (
@@ -13,7 +16,7 @@ export function Header() {
               <span className="text-lg font-semibold text-gray-900">SuiStack</span>
             </Link>
           </div>
-          
+
           {/* 중앙 네비게이션 */}
           <div className="hidden md:flex items-center space-x-8">
             <Link
@@ -35,12 +38,10 @@ export function Header() {
               portfolio
             </Link>
           </div>
-          
+
           {/* 오른쪽 지갑 연결 버튼 */}
           <div className="flex items-center">
-            <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-              Connet Wallet
-            </button>
+            <WalletConnect />
           </div>
         </div>
       </div>
