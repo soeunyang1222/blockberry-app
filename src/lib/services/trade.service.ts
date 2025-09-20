@@ -106,6 +106,53 @@ export class TradeService {
       trades,
     };
   }
+
+  /**
+   * 최근 거래내역을 조회합니다
+   * @param user_id 사용자 ID (선택사항)
+   * @param vault_id 저금고 ID (선택사항)
+   * @param limit 조회할 거래 수 (기본값: 10)
+   * @returns 최근 거래내역 배열
+   */
+  async getRecentTrades(user_id?: number, vault_id?: number, limit: number = 10): Promise<Trade[]> {
+    const repository = await this.getTradeRepository();
+    
+    const queryBuilder = repository.createQueryBuilder('trade')
+      .leftJoinAndSelect('trade.user', 'user')
+      .leftJoinAndSelect('trade.savings_vault', 'savings_vault')
+      .orderBy('trade.created_at', 'DESC')
+      .limit(limit);
+    
+    if (user_id) {
+      queryBuilder.andWhere('trade.user_id = :user_id', { user_id });
+    }
+    
+    if (vault_id) {
+      queryBuilder.andWhere('trade.vault_id = :vault_id', { vault_id });
+    }
+    
+    return await queryBuilder.getMany();
+  }
+
+  /**
+   * 사용자의 최근 거래내역을 조회합니다
+   * @param user_id 사용자 ID
+   * @param limit 조회할 거래 수 (기본값: 10)
+   * @returns 사용자의 최근 거래내역 배열
+   */
+  async getRecentTradesByUser(user_id: number, limit: number = 10): Promise<Trade[]> {
+    return await this.getRecentTrades(user_id, undefined, limit);
+  }
+
+  /**
+   * 저금고의 최근 거래내역을 조회합니다
+   * @param vault_id 저금고 ID
+   * @param limit 조회할 거래 수 (기본값: 10)
+   * @returns 저금고의 최근 거래내역 배열
+   */
+  async getRecentTradesByVault(vault_id: number, limit: number = 10): Promise<Trade[]> {
+    return await this.getRecentTrades(undefined, vault_id, limit);
+  }
 }
 
 export const tradeService = new TradeService();

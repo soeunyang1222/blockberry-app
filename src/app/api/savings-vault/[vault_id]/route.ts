@@ -21,6 +21,8 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const vault_id = parseInt(params.vault_id);
+    const { searchParams } = new URL(request.url);
+    const withDetails = searchParams.get('with_details');
     
     if (isNaN(vault_id)) {
       return NextResponse.json(
@@ -32,7 +34,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
     
-    const savingsVault = await savingsVaultService.findOne(vault_id);
+    let savingsVault;
+    
+    // 상세 정보 포함 조회
+    if (withDetails === 'true') {
+      savingsVault = await savingsVaultService.findVaultWithDetails(vault_id);
+    } else {
+      savingsVault = await savingsVaultService.findOne(vault_id);
+    }
     
     if (!savingsVault) {
       return NextResponse.json(

@@ -92,6 +92,62 @@ export class SavingsVaultService {
     }
     await repository.remove(savingsVault);
   }
+
+  /**
+   * 조회 가능한 저금통들을 조회합니다 (active = true)
+   * @param user_id 사용자 ID (선택사항)
+   * @returns 조회 가능한 저금통 배열
+   */
+  async findAvailableVaults(user_id?: number): Promise<SavingsVault[]> {
+    const repository = await this.getSavingsVaultRepository();
+    
+    const queryBuilder = repository.createQueryBuilder('savings_vault')
+      .leftJoinAndSelect('savings_vault.user', 'user')
+      .leftJoinAndSelect('savings_vault.deposits', 'deposits')
+      .leftJoinAndSelect('savings_vault.trades', 'trades')
+      .where('savings_vault.active = :active', { active: true })
+      .orderBy('savings_vault.created_at', 'DESC');
+    
+    if (user_id) {
+      queryBuilder.andWhere('savings_vault.user_id = :user_id', { user_id });
+    }
+    
+    return await queryBuilder.getMany();
+  }
+
+  /**
+   * 사용자의 조회 가능한 저금통들을 조회합니다
+   * @param user_id 사용자 ID
+   * @returns 사용자의 조회 가능한 저금통 배열
+   */
+  async findAvailableVaultsByUser(user_id: number): Promise<SavingsVault[]> {
+    return await this.findAvailableVaults(user_id);
+  }
+
+  /**
+   * 모든 조회 가능한 저금통들을 조회합니다
+   * @returns 모든 조회 가능한 저금통 배열
+   */
+  async findAllAvailableVaults(): Promise<SavingsVault[]> {
+    return await this.findAvailableVaults();
+  }
+
+  /**
+   * 저금통의 상세 정보와 관련 데이터를 조회합니다
+   * @param vault_id 저금고 ID
+   * @returns 저금통 상세 정보 (관련 거래, 입금 포함)
+   */
+  async findVaultWithDetails(vault_id: number): Promise<SavingsVault | null> {
+    const repository = await this.getSavingsVaultRepository();
+    return await repository.findOne({
+      where: { vault_id },
+      relations: ['user', 'deposits', 'trades'],
+      order: {
+        trades: { created_at: 'DESC' },
+        deposits: { created_at: 'DESC' }
+      }
+    });
+  }
 }
 
 export const savingsVaultService = new SavingsVaultService();
