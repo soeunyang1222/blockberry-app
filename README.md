@@ -1,15 +1,15 @@
-# Sui DCA (Dollar Cost Averaging) Platform
+# 🫐 Blockberry - Sui DCA Platform
 
-Kraken의 DCA 기능에서 영감을 받아 Sui 블록체인 위에서 달러 코스트 애버리징(DCA) 도구를 구축하는 NestJS 애플리케이션입니다. Cetus Aggregator를 활용하여 Sui DEX들 사이에서 USDC → Wrapped BTC로 가장 저렴한 스왑을 찾아 실행합니다.
+**Next.js 풀스택 애플리케이션**으로 구축된 Sui 블록체인 기반 달러 코스트 애버리징(DCA) 플랫폼입니다. Cetus Aggregator를 활용하여 Sui DEX들 사이에서 USDC → Wrapped BTC로 가장 저렴한 스왑을 찾아 실행합니다.
 
 ## 🎯 프로젝트 개요
 
-이 PoC는 해커톤용으로 개발된 DCA 플랫폼으로, 다음과 같은 기능을 제공합니다:
+이 플랫폼은 해커톤용으로 개발된 DCA 플랫폼으로, 다음과 같은 기능을 제공합니다:
 
 - **지갑 연결 및 사용자 관리**
 - **BTC 적립 설정 생성** (매수당 USDC 금액, 빈도, 시간)
 - **USDC를 스마트 컨트랙트에 예치**
-- **자동/스케줄 매수** (PoC에서는 수동 또는 시뮬레이션)
+- **자동/스케줄 매수** (현재는 수동 또는 시뮬레이션)
 - **누적된 BTC 확인**
 - **가상의 CEX 매수와 비교** (업비트/빗썸 고정 시각 매수)
 - **사용자 거래내역 표시**
@@ -17,15 +17,57 @@ Kraken의 DCA 기능에서 영감을 받아 Sui 블록체인 위에서 달러 �
 
 ## 🏗️ 기술 스택
 
-- **백엔드**: NestJS, TypeScript
-- **데이터베이스**: PostgreSQL (Neon Cloud)
-- **ORM**: TypeORM
-- **API 문서**: Swagger
-- **블록체인**: Sui (예정)
-- **DEX Aggregator**: Cetus Protocol (예정)
-- **가격 API**: Coingecko (예정)
+### 🚀 최신 업데이트 (2024-09-20)
 
-## 🚀 설치 및 설정
+프로젝트가 **NestJS**에서 **Next.js 풀스택 애플리케이션**으로 마이그레이션되었습니다!
+
+```yaml
+Frontend & Backend:
+  - Next.js 14+ (App Router)
+  - React 18 + TypeScript
+  - Tailwind CSS
+
+Database & ORM:
+  - PostgreSQL (Neon Cloud)
+  - TypeORM
+
+Blockchain:
+  - Sui Network
+  - Cetus Protocol (예정)
+
+Development:
+  - TypeScript
+  - ESLint + Prettier
+  - pnpm
+```
+
+## 📁 새로운 프로젝트 구조
+
+```
+blockberry-app/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── api/               # API Routes (기존 NestJS 컨트롤러들)
+│   │   │   ├── users/
+│   │   │   ├── savings-vault/
+│   │   │   ├── deposits/
+│   │   │   └── trades/
+│   │   ├── dashboard/         # DCA 대시보드 페이지들
+│   │   ├── layout.tsx         # 루트 레이아웃
+│   │   └── page.tsx           # 홈페이지
+│   ├── lib/                   # 라이브러리 & 유틸리티
+│   │   ├── database/          # TypeORM 설정 & 엔티티
+│   │   ├── services/          # 비즈니스 로직
+│   │   └── utils/
+│   ├── components/            # React 컴포넌트
+│   └── types/                # TypeScript 타입 정의
+├── docs/                     # 문서
+├── package.json
+├── next.config.js
+└── tailwind.config.js
+```
+
+## 🚀 빠른 시작
 
 ### 1. 의존성 설치
 
@@ -39,251 +81,154 @@ npm install
 
 ### 2. 환경 변수 설정
 
-프로젝트 루트에 `.env` 파일을 생성하고 `env.example`을 참고하여 실제 값으로 설정하세요:
-
 ```bash
-# .env 파일 생성
-cp env.example .env
+# 환경 변수 파일 복사
+cp env.local.example .env.local
 
-# .env 파일을 편집하여 실제 값으로 변경
+# .env.local 파일을 편집하여 실제 값으로 변경
 ```
 
-**중요**: `.env` 파일에는 민감한 정보가 포함되어 있으므로 절대 git에 커밋하지 마세요.
+**필수 환경 변수:**
+```bash
+DATABASE_URL="postgresql://username:password@hostname:port/database?sslmode=require"
+SUI_NETWORK="devnet"
+NODE_ENV="development"
+```
 
 ### 3. 애플리케이션 실행
 
 ```bash
-# 개발 모드 (파일 변경 시 자동 재시작)
-pnpm run dev
-
-# 또는
-pnpm run start:dev
+# 개발 모드 실행
+pnpm dev
 
 # 프로덕션 빌드
-pnpm run build
-pnpm run start:prod
+pnpm build
+pnpm start
 ```
 
-## 📚 API 문서
+## 🌐 접속 URL
 
-### Swagger UI
-애플리케이션 실행 후 다음 URL에서 API 문서를 확인할 수 있습니다:
-- **Swagger UI**: http://localhost:3000/api
-- **API 서버**: http://localhost:3000
+애플리케이션 실행 후 다음 URL에서 확인할 수 있습니다:
+
+- **웹 애플리케이션**: http://localhost:3000
+- **대시보드**: http://localhost:3000/dashboard
+- **API 엔드포인트**: http://localhost:3000/api/*
 
 ## 🔌 API 엔드포인트
 
-### 메인 API (`/api`)
+### 사용자 관리 (`/api/users`)
+- `POST /api/users` - 사용자 생성
+- `GET /api/users` - 모든 사용자 조회
+- `GET /api/users/[id]` - 사용자 ID로 조회
+- `GET /api/users/wallet/[wallet_address]` - 지갑 주소로 조회
+- `DELETE /api/users/[id]` - 사용자 삭제
 
-#### DCA 관리
-- `POST /api/create-savings` - 저금고 생성
-- `POST /api/deposit` - 입금 처리
-- `POST /api/execute-buy` - 매수 실행
-- `GET /api/transactions` - 거래 내역 조회
-- `GET /api/verify-wallet` - 지갑 주소 검증
+### 저금고 관리 (`/api/savings-vault`)
+- `POST /api/savings-vault` - 저금고 생성
+- `GET /api/savings-vault` - 모든 저금고 조회
+- `GET /api/savings-vault/[vault_id]` - 저금고 ID로 조회
+- `PATCH /api/savings-vault/[vault_id]` - 저금고 수정
+- `DELETE /api/savings-vault/[vault_id]` - 저금고 삭제
 
-### 사용자 관리 (`/users`)
-- `POST /users` - 사용자 생성
-- `GET /users` - 모든 사용자 조회
-- `GET /users/:id` - 사용자 ID로 조회
-- `GET /users/wallet/:wallet_address` - 지갑 주소로 조회
-- `DELETE /users/:id` - 사용자 삭제
+### 입금 관리 (`/api/deposits`)
+- `POST /api/deposits` - 입금 생성
+- `GET /api/deposits` - 모든 입금 조회
+- `GET /api/deposits/[deposit_id]` - 입금 조회
 
-### 저금고 관리 (`/savings-vault`)
-- `POST /savings-vault` - 저금고 생성
-- `GET /savings-vault` - 모든 저금고 조회
-- `GET /savings-vault/:vault_id` - 저금고 ID로 조회
-- `GET /savings-vault/user/:user_id` - 사용자별 저금고 조회
-- `PATCH /savings-vault/:vault_id/active` - 저금고 활성 상태 변경
-- `DELETE /savings-vault/:vault_id` - 저금고 삭제
+### 거래 관리 (`/api/trades`)
+- `POST /api/trades` - 거래 생성
+- `GET /api/trades` - 모든 거래 조회
+- `GET /api/trades/[trade_id]` - 거래 조회
 
-### 입금 관리 (`/deposits`)
-- `POST /deposits` - 입금 생성
-- `GET /deposits` - 모든 입금 조회
-- `GET /deposits/:deposit_id` - 입금 ID로 조회
-- `GET /deposits/user/:user_id` - 사용자별 입금 조회
-- `GET /deposits/vault/:vault_id` - 저금고별 입금 조회
-- `GET /deposits/balance` - 잔액 조회
-- `DELETE /deposits/:deposit_id` - 입금 삭제
+## 📊 API 응답 형식
 
-### 거래 관리 (`/trades`)
-- `POST /trades` - 거래 생성
-- `GET /trades` - 모든 거래 조회
-- `GET /trades/:trade_id` - 거래 ID로 조회
-- `GET /trades/user/:user_id` - 사용자별 거래 조회
-- `GET /trades/vault/:vault_id` - 저금고별 거래 조회
-- `DELETE /trades/:trade_id` - 거래 삭제
+모든 API는 다음과 같은 일관된 형식으로 응답합니다:
 
-### 사용 예시
+```typescript
+// 성공 응답
+{
+  "success": true,
+  "data": { /* 실제 데이터 */ },
+  "message": "Success message"
+}
 
-#### 사용자 생성
-```bash
-curl -X POST http://localhost:3000/users \
-  -H "Content-Type: application/json" \
-  -d '{"wallet_address": "0x1234567890abcdef..."}'
-```
-
-#### 저금고 생성
-```bash
-curl -X POST http://localhost:3000/api/create-savings \
-  -H "Content-Type: application/json" \
-  -d '{
-    "user_id": 1,
-    "vault_name": "My Bitcoin Savings",
-    "target_token": "BTC",
-    "interval_days": 7,
-    "amount_fiat": 100000,
-    "fiat_symbol": "KRW",
-    "duration_days": 365
-  }'
-```
-
-#### 입금 처리
-```bash
-curl -X POST http://localhost:3000/api/deposit \
-  -H "Content-Type: application/json" \
-  -d '{
-    "vault_id": 1,
-    "user_id": 1,
-    "amount_fiat": 100000,
-    "fiat_symbol": "KRW",
-    "tx_hash": "0xabcdef..."
-  }'
-```
-
-#### 잔액 조회
-```bash
-curl "http://localhost:3000/deposits/balance?user_id=1&vault_id=1"
+// 오류 응답
+{
+  "success": false,
+  "error": "Error message",
+  "details": { /* 추가 오류 정보 */ }
+}
 ```
 
 ## 🗄️ 데이터베이스 스키마
 
-### users 테이블
-| 컬럼명 | 타입 | 설명 |
-|--------|------|------|
-| id | SERIAL PRIMARY KEY | 자동 증가 ID |
-| wallet_address | VARCHAR UNIQUE | 지갑 주소 (고유) |
-| created_at | TIMESTAMP | 생성일시 |
-
-### savings_vault 테이블
-| 컬럼명 | 타입 | 설명 |
-|--------|------|------|
-| vault_id | SERIAL PRIMARY KEY | 자동 증가 ID |
-| user_id | INTEGER | 사용자 ID (FK) |
-| vault_name | VARCHAR | 저금고 이름 |
-| target_token | VARCHAR | 대상 토큰 (예: BTC) |
-| interval_days | INTEGER | 간격 일수 |
-| amount_fiat | INTEGER | 법정화폐 금액 |
-| fiat_symbol | VARCHAR | 법정화폐 심볼 (예: KRW) |
-| duration_days | INTEGER | 지속 기간 일수 |
-| total_deposit | INTEGER | 총 입금액 |
-| active | BOOLEAN | 활성 상태 |
-| created_at | TIMESTAMP | 생성일시 |
-
-### deposits 테이블
-| 컬럼명 | 타입 | 설명 |
-|--------|------|------|
-| deposit_id | SERIAL PRIMARY KEY | 자동 증가 ID |
-| vault_id | INTEGER | 저금고 ID (FK) |
-| user_id | INTEGER | 사용자 ID (FK) |
-| amount_fiat | INTEGER | 입금 금액 |
-| fiat_symbol | VARCHAR | 법정화폐 심볼 |
-| tx_hash | VARCHAR | 트랜잭션 해시 |
-| created_at | TIMESTAMP | 생성일시 |
-
-### trades 테이블
-| 컬럼명 | 타입 | 설명 |
-|--------|------|------|
-| trade_id | SERIAL PRIMARY KEY | 자동 증가 ID |
-| vault_id | INTEGER | 저금고 ID (FK) |
-| user_id | INTEGER | 사용자 ID (FK) |
-| fiat_amount | INTEGER | 법정화폐 금액 |
-| fiat_symbol | VARCHAR | 법정화폐 심볼 |
-| token_symbol | VARCHAR | 토큰 심볼 |
-| token_amount | INTEGER | 토큰 금액 |
-| price_executed | INTEGER | 실행 가격 |
-| tx_hash | VARCHAR | 트랜잭션 해시 |
+### 주요 테이블
+- `users` - 사용자 정보 (지갑 주소 기반)
+- `savings_vault` - DCA 저금고 설정
+- `deposits` - 입금 내역
+- `trades` - 거래 내역
 
 ### 관계도
 ```
 users (1) ←→ (N) savings_vault
-users (1) ←→ (N) deposits
+users (1) ←→ (N) deposits  
 users (1) ←→ (N) trades
 savings_vault (1) ←→ (N) deposits
 savings_vault (1) ←→ (N) trades
 ```
 
-## 🛠️ 개발
+## 🛠️ 개발 스크립트
 
-### 스크립트
+```bash
+# 개발 서버 실행
+pnpm dev
 
-- `pnpm run dev` - 개발 모드로 실행 (파일 변경 시 자동 재시작)
-- `pnpm run build` - TypeScript 컴파일
-- `pnpm run start:prod` - 프로덕션 모드로 실행
-- `pnpm run lint` - ESLint로 코드 검사
-- `pnpm run test` - 테스트 실행
+# 타입 체크
+pnpm type-check
 
-### 프로젝트 구조
+# 린트 검사
+pnpm lint
 
+# 프로덕션 빌드
+pnpm build
+
+# 프로덕션 실행
+pnpm start
 ```
-src/
-├── api/                    # 메인 API 모듈
-│   ├── api.controller.ts   # DCA 핵심 API
-│   └── api.module.ts
-├── users/                  # 사용자 관리 모듈
-│   ├── dto/               # 데이터 전송 객체
-│   ├── entities/          # TypeORM 엔티티
-│   ├── users.controller.ts
-│   ├── users.service.ts
-│   └── users.module.ts
-├── savings-vault/         # 저금고 관리 모듈
-│   ├── dto/
-│   ├── entities/
-│   ├── savings-vault.controller.ts
-│   ├── savings-vault.service.ts
-│   └── savings-vault.module.ts
-├── deposits/              # 입금 관리 모듈
-│   ├── dto/
-│   ├── entities/
-│   ├── deposits.controller.ts
-│   ├── deposits.service.ts
-│   └── deposits.module.ts
-├── trades/                # 거래 관리 모듈
-│   ├── dto/
-│   ├── entities/
-│   ├── trades.controller.ts
-│   ├── trades.service.ts
-│   └── trades.module.ts
-├── blockberry/            # Blockberry API 모듈
-│   ├── dto/
-│   ├── blockberry.service.ts
-│   └── blockberry.module.ts
-├── app.module.ts          # 루트 모듈
-└── main.ts                # 애플리케이션 진입점
-```
+
+## 🔄 마이그레이션 히스토리
+
+### v1.0 → v2.0 (2024-09-20)
+- **NestJS** → **Next.js App Router**로 완전 마이그레이션
+- 프론트엔드와 백엔드 통합
+- API Routes 구조로 변경
+- TypeORM 연동 유지
+- React 기반 사용자 인터페이스 추가
 
 ## 🚧 개발 상태
 
 ### ✅ 완료된 기능
-- [x] 기본 데이터베이스 구조 (PostgreSQL + TypeORM)
-- [x] 사용자 관리 (지갑 주소 기반)
-- [x] 저금고 관리 (DCA 설정)
-- [x] 입금/거래 관리
-- [x] RESTful API 엔드포인트
-- [x] Swagger API 문서화
-- [x] Blockberry API 연동 (기본)
+- [x] Next.js App Router 프로젝트 구조
+- [x] TypeORM + PostgreSQL 데이터베이스
+- [x] 사용자 관리 API 
+- [x] 저금고 관리 API
+- [x] 입금/거래 관리 API
+- [x] 기본 대시보드 UI
+- [x] API Routes 변환 완료
 
 ### 🔄 진행 중인 기능
-- [ ] 가격 API 연동 (Coingecko)
-- [ ] DCA 시뮬레이션 로직
-- [ ] CEX 가격 비교
+- [ ] 입금/거래 API Routes 완성
+- [ ] 저금고 생성/관리 UI
+- [ ] 포트폴리오 대시보드
+- [ ] 가격 API 연동
 
 ### 📋 예정된 기능
 - [ ] Sui 블록체인 연동
-- [ ] Cetus Aggregator 연동
-- [ ] 실제 스마트 컨트랙트 호출
+- [ ] Cetus Aggregator 통합
+- [ ] 실시간 가격 피드
 - [ ] 자동 스케줄링 시스템
-- [ ] 프론트엔드 UI
+- [ ] CEX 가격 비교
+- [ ] 모바일 반응형 UI 개선
 
 ## 🤝 기여하기
 
