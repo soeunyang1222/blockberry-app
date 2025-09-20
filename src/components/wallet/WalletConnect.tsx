@@ -35,7 +35,7 @@ export function WalletConnect() {
           className="flex items-center gap-2"
         >
           <Wallet className="w-4 h-4" />
-          지갑 연결
+          Connect Wallet
           <ChevronDown className="w-4 h-4" />
         </Button>
 
@@ -43,7 +43,7 @@ export function WalletConnect() {
           <div className="absolute right-0 mt-2 w-64 bg-background border border-border rounded-lg shadow-lg z-50">
             <div className="p-2">
               <h3 className="text-sm font-semibold text-foreground mb-2 px-2">
-                지갑 선택
+                Select Wallet
               </h3>
               {wallets.map((wallet) => (
                 <button
