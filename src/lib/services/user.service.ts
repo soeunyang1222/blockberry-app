@@ -4,6 +4,7 @@ import { User } from '../database/entities/user.entity';
 
 export interface CreateUserDto {
   wallet_address: string;
+  virtual_account_address?: string;
 }
 
 export class UserService {
@@ -19,7 +20,7 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const repository = await this.getUserRepository();
-    const { wallet_address } = createUserDto;
+    const { wallet_address, virtual_account_address } = createUserDto;
 
     // 기존 사용자 확인
     const existingUser = await repository.findOne({
@@ -30,7 +31,10 @@ export class UserService {
       throw new Error('User with this wallet address already exists');
     }
 
-    const user = repository.create(createUserDto);
+    const user = repository.create({
+      wallet_address,
+      virtual_account_address: virtual_account_address || null,
+    });
     return await repository.save(user);
   }
 
@@ -45,7 +49,7 @@ export class UserService {
     const repository = await this.getUserRepository();
     return await repository.findOne({
       where: { id },
-      relations: ['savings_vaults', 'deposits', 'trades'],
+      relations: ['savings_vaults', 'trades'],
     });
   }
 
@@ -53,7 +57,7 @@ export class UserService {
     const repository = await this.getUserRepository();
     return await repository.findOne({
       where: { wallet_address },
-      relations: ['savings_vaults', 'deposits', 'trades'],
+      relations: ['savings_vaults', 'trades'],
     });
   }
 

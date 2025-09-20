@@ -11,6 +11,7 @@ const CreateTradeSchema = z.object({
   token_amount: z.number().positive('Token amount must be positive'),
   price_executed: z.number().positive('Price executed must be positive'),
   tx_hash: z.string().min(1, 'Transaction hash is required'),
+  cycle_index: z.number().positive('Cycle index must be positive'),
 });
 
 /**
@@ -129,6 +130,7 @@ export async function GET(request: NextRequest) {
  *               - token_amount
  *               - price_executed
  *               - tx_hash
+ *               - cycle_index
  *             properties:
  *               vault_id:
  *                 type: integer
@@ -139,13 +141,13 @@ export async function GET(request: NextRequest) {
  *                 description: 사용자 ID
  *                 example: 1
  *               fiat_amount:
- *                 type: integer
+ *                 type: number
  *                 description: 법정화폐 금액
- *                 example: 100000
+ *                 example: 1000.00
  *               fiat_symbol:
  *                 type: string
  *                 description: 법정화폐 심볼
- *                 example: "KRW"
+ *                 example: "USDC"
  *               token_symbol:
  *                 type: string
  *                 description: 토큰 심볼
@@ -155,16 +157,33 @@ export async function GET(request: NextRequest) {
  *                 description: 토큰 금액
  *                 example: 0.001
  *               price_executed:
- *                 type: integer
+ *                 type: number
  *                 description: 실행 가격
- *                 example: 100000000
+ *                 example: 100000.00
  *               tx_hash:
  *                 type: string
  *                 description: 트랜잭션 해시
  *                 example: "0xabcdef..."
+ *               cycle_index:
+ *                 type: integer
+ *                 description: 거래 주기 인덱스
+ *                 example: 1
  *     responses:
  *       201:
  *         description: 거래 생성 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Trade'
+ *                 message:
+ *                   type: string
+ *                   example: "Trade created successfully"
  *       400:
  *         description: 잘못된 요청
  *       500:
@@ -210,3 +229,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

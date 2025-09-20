@@ -39,6 +39,11 @@ export const getApiDocs = async () => {
                 description: '생성일시',
                 example: '2024-01-01T00:00:00.000Z',
               },
+              virtual_account_address: {
+                type: 'string',
+                description: '가상 계좌 주소',
+                example: 'VA1234567890',
+              },
             },
           },
           SavingsVault: {
@@ -64,76 +69,20 @@ export const getApiDocs = async () => {
                 description: '대상 토큰',
                 example: 'BTC',
               },
-              interval_days: {
-                type: 'integer',
-                description: '간격 일수',
-                example: 7,
-              },
               amount_fiat: {
-                type: 'integer',
-                description: '법정화폐 금액 (센트 단위)',
-                example: 1000000,
+                type: 'number',
+                description: '법정화폐 금액',
+                example: 1000.00,
               },
               fiat_symbol: {
                 type: 'string',
                 description: '법정화폐 심볼',
-                example: 'KRW',
-              },
-              duration_days: {
-                type: 'integer',
-                description: '지속 기간 일수',
-                example: 365,
-              },
-              total_deposit: {
-                type: 'integer',
-                description: '총 입금액',
-                example: 500000,
+                example: 'USDC',
               },
               active: {
                 type: 'boolean',
                 description: '활성 상태',
                 example: true,
-              },
-              created_at: {
-                type: 'string',
-                format: 'date-time',
-                description: '생성일시',
-                example: '2024-01-01T00:00:00.000Z',
-              },
-            },
-          },
-          Deposit: {
-            type: 'object',
-            properties: {
-              deposit_id: {
-                type: 'integer',
-                description: '입금 ID',
-                example: 1,
-              },
-              vault_id: {
-                type: 'integer',
-                description: '저금고 ID',
-                example: 1,
-              },
-              user_id: {
-                type: 'integer',
-                description: '사용자 ID',
-                example: 1,
-              },
-              amount_fiat: {
-                type: 'integer',
-                description: '입금 금액',
-                example: 100000,
-              },
-              fiat_symbol: {
-                type: 'string',
-                description: '법정화폐 심볼',
-                example: 'KRW',
-              },
-              tx_hash: {
-                type: 'string',
-                description: '트랜잭션 해시',
-                example: '0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
               },
               created_at: {
                 type: 'string',
@@ -162,14 +111,14 @@ export const getApiDocs = async () => {
                 example: 1,
               },
               fiat_amount: {
-                type: 'integer',
+                type: 'number',
                 description: '법정화폐 금액',
-                example: 100000,
+                example: 1000.00,
               },
               fiat_symbol: {
                 type: 'string',
                 description: '법정화폐 심볼',
-                example: 'KRW',
+                example: 'USDC',
               },
               token_symbol: {
                 type: 'string',
@@ -182,9 +131,9 @@ export const getApiDocs = async () => {
                 example: 0.001,
               },
               price_executed: {
-                type: 'integer',
+                type: 'number',
                 description: '실행 가격',
-                example: 100000000,
+                example: 100000.00,
               },
               tx_hash: {
                 type: 'string',
@@ -196,6 +145,11 @@ export const getApiDocs = async () => {
                 format: 'date-time',
                 description: '생성일시',
                 example: '2024-01-01T00:00:00.000Z',
+              },
+              cycle_index: {
+                type: 'integer',
+                description: '거래 주기 인덱스',
+                example: 1,
               },
             },
           },
@@ -245,12 +199,8 @@ export const getApiDocs = async () => {
           description: '사용자 관리 API',
         },
         {
-          name: 'Savings Vault',
+          name: 'SavingsVault',
           description: '저금고 관리 API',
-        },
-        {
-          name: 'Deposits',
-          description: '입금 관리 API',
         },
         {
           name: 'Trades',

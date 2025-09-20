@@ -6,20 +6,16 @@ export interface CreateSavingsVaultDto {
   user_id: number;
   vault_name: string;
   target_token: string;
-  interval_days: number;
   amount_fiat: number;
   fiat_symbol: string;
-  duration_days: number;
   active?: boolean;
 }
 
 export interface UpdateSavingsVaultDto {
   vault_name?: string;
   target_token?: string;
-  interval_days?: number;
   amount_fiat?: number;
   fiat_symbol?: string;
-  duration_days?: number;
   active?: boolean;
 }
 
@@ -46,7 +42,7 @@ export class SavingsVaultService {
   async findAll(): Promise<SavingsVault[]> {
     const repository = await this.getSavingsVaultRepository();
     return await repository.find({
-      relations: ['user', 'deposits', 'trades'],
+      relations: ['user', 'trades'],
       order: { created_at: 'DESC' },
     });
   }
@@ -55,7 +51,7 @@ export class SavingsVaultService {
     const repository = await this.getSavingsVaultRepository();
     return await repository.findOne({
       where: { vault_id },
-      relations: ['user', 'deposits', 'trades'],
+      relations: ['user', 'trades'],
     });
   }
 
@@ -63,7 +59,7 @@ export class SavingsVaultService {
     const repository = await this.getSavingsVaultRepository();
     return await repository.find({
       where: { user_id },
-      relations: ['deposits', 'trades'],
+      relations: ['trades'],
       order: { created_at: 'DESC' },
     });
   }
@@ -103,7 +99,6 @@ export class SavingsVaultService {
     
     const queryBuilder = repository.createQueryBuilder('savings_vault')
       .leftJoinAndSelect('savings_vault.user', 'user')
-      .leftJoinAndSelect('savings_vault.deposits', 'deposits')
       .leftJoinAndSelect('savings_vault.trades', 'trades')
       .where('savings_vault.active = :active', { active: true })
       .orderBy('savings_vault.created_at', 'DESC');
@@ -141,10 +136,9 @@ export class SavingsVaultService {
     const repository = await this.getSavingsVaultRepository();
     return await repository.findOne({
       where: { vault_id },
-      relations: ['user', 'deposits', 'trades'],
+      relations: ['user', 'trades'],
       order: {
-        trades: { created_at: 'DESC' },
-        deposits: { created_at: 'DESC' }
+        trades: { created_at: 'DESC' }
       }
     });
   }
