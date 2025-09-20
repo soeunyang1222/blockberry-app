@@ -2,9 +2,12 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { WalletConnect } from '@/components/wallet';
 
 export function Header() {
+  const pathname = usePathname();
+  
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,13 +24,21 @@ export function Header() {
           <div className="hidden md:flex items-center space-x-8">
             <Link
               href="/dca"
-              className="text-sm text-gray-700 hover:text-gray-900 transition-colors"
+              className={`text-sm transition-colors ${
+                pathname === '/dca'
+                  ? 'text-green-500 font-medium'
+                  : 'text-gray-700 hover:text-gray-900'
+              }`}
             >
               DCA
             </Link>
             <Link
               href="/investment"
-              className="text-sm text-gray-700 hover:text-gray-900 transition-colors"
+              className={`text-sm transition-colors ${
+                pathname === '/investment'
+                  ? 'text-green-500 font-medium'
+                  : 'text-gray-700 hover:text-gray-900'
+              }`}
             >
               Investment
             </Link>
