@@ -6,7 +6,12 @@ import { SavingsVaultModule } from './savings-vault/savings-vault.module';
 import { DepositsModule } from './deposits/deposits.module';
 import { TradesModule } from './trades/trades.module';
 import { ApiModule } from './api/api.module';
-import { BlockberryModule } from './blockberry/blockberry.module';
+import { SuiModule } from './sui/sui.module';
+import { CetusModule } from './cetus/cetus.module';
+import { PriceModule } from './price/price.module';
+import { OrderBookModule } from './orderbook/orderbook.module';
+import { SuiRPCModule } from './sui-rpc/sui-rpc.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -37,7 +42,12 @@ import { BlockberryModule } from './blockberry/blockberry.module';
     DepositsModule,
     TradesModule,
     ApiModule,
-    BlockberryModule,
+    SuiModule,
+    CetusModule,
+    PriceModule,
+    OrderBookModule,
+    SuiRPCModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}

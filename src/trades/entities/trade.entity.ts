@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../users/entities/user.entity';
 import { SavingsVault } from '../../savings-vault/entities/savings-vault.entity';
@@ -67,6 +67,13 @@ export class Trade {
   })
   @Column()
   tx_hash: string;
+
+  @ApiProperty({
+    description: '생성일시',
+    example: '2024-01-01T00:00:00.000Z',
+  })
+  @CreateDateColumn()
+  created_at: Date;
 
   // Relations
   @ManyToOne(() => SavingsVault, savingsVault => savingsVault.trades)

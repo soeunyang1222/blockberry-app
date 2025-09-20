@@ -3,12 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { User } from './entities/user.entity';
-import { BlockberryModule } from '../blockberry/blockberry.module';
+import { SuiModule } from '../sui/sui.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
-    BlockberryModule,
+    SuiModule,
   ],
   controllers: [UsersController],
   providers: [UsersService],

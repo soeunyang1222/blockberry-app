@@ -3,14 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { BlockberryService } from '../blockberry/blockberry.service';
+import { SuiService } from '../sui/sui.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private readonly blockberryService: BlockberryService,
+    private readonly suiService: SuiService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -25,12 +25,12 @@ export class UsersService {
       throw new ConflictException('User with this wallet address already exists');
     }
 
-    // Blockberry API로 지갑 주소 검증 및 정보 수집
+    // Sui SDK로 지갑 주소 검증 및 정보 수집
     try {
-      const accountInfo = await this.blockberryService.getAccountByHash(wallet_address);
-      console.log(`Blockberry API response for ${wallet_address}:`, accountInfo);
+      const accountInfo = await this.suiService.getAccountByHash(wallet_address);
+      console.log(`Sui SDK response for ${wallet_address}:`, accountInfo);
     } catch (error) {
-      console.warn(`Blockberry API validation failed for ${wallet_address}:`, error.message);
+      console.warn(`Sui SDK validation failed for ${wallet_address}:`, error.message);
       // API 실패해도 사용자 생성은 진행 (선택적 검증)
     }
 
