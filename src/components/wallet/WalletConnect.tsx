@@ -87,7 +87,7 @@ export function WalletConnect() {
       {isDropdownOpen && (
         <div className="absolute right-0 mt-2 w-64 bg-background border border-border rounded-lg shadow-lg z-50">
           <div className="p-4 border-b border-border">
-            <p className="text-xs text-foreground-muted mb-1">연결된 주소</p>
+            <p className="text-xs text-foreground-muted mb-1">Your Address</p>
             <div className="flex items-center justify-between">
               <p className="text-sm font-mono text-foreground">
                 {formatAddress(account.address)}
@@ -114,7 +114,7 @@ export function WalletConnect() {
               className="w-full flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
             >
               <LogOut className="w-4 h-4" />
-              <span className="text-sm">연결 해제</span>
+              <span className="text-sm">Disconnect</span>
             </button>
           </div>
         </div>
