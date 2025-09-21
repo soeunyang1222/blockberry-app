@@ -1,10 +1,12 @@
 // Mock data types
 
 export interface WalletBalance {
-  asset: string
+  asset?: string
   symbol: string
+  name: string
   amount: number
   value: number
+  price: number
 }
 
 export interface PortfolioData {
@@ -16,7 +18,10 @@ export interface PortfolioData {
     asset: string
     amount: number
     value: number
-    change24h: number
+    avgBuyPrice: number
+    currentPrice: number
+    returnAmount: number
+    returnRate: number
   }[]
 }
 
@@ -27,8 +32,9 @@ export interface Transaction {
   asset: string
   amount: number
   price: number
-  value: number
+  total: number
   status: 'completed' | 'pending' | 'failed'
+  vaultId?: string
 }
 
 export interface DCAOrder {

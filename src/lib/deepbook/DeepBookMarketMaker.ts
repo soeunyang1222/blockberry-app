@@ -134,34 +134,6 @@ export class DeepBookMarketMaker {
     await this.signAndExecute(tx);
   }
 
-  /**
-   * Delegate Trade Cap to platform address
-   * Note: Simplified implementation
-   */
-  async delegateTradeCap(
-    managerId: string,
-    platformAddress: string
-  ): Promise<string> {
-    const tx = new Transaction();
-
-    // Mint trade cap and transfer to platform
-    const [tradeCap] = tx.moveCall({
-      target: `${this.deepbookPackageId}::balance_manager::mint_trade_cap`,
-      arguments: [tx.object(managerId)],
-    });
-
-    // Transfer trade cap to platform
-    tx.transferObjects([tradeCap], platformAddress);
-
-    const result = await this.signAndExecute(tx);
-    const tradeCapId = result.effects?.created?.[0]?.reference?.objectId;
-
-    if (!tradeCapId) {
-      throw new Error("Failed to create trade cap");
-    }
-
-    return tradeCapId;
-  }
 
   /**
    * Check Balance Manager balance for specific asset

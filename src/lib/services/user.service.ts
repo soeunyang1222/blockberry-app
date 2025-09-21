@@ -33,7 +33,7 @@ export class UserService {
 
     const user = repository.create({
       wallet_address,
-      virtual_account_address: virtual_account_address || null,
+      virtual_account_address: virtual_account_address || undefined,
     });
     return await repository.save(user);
   }

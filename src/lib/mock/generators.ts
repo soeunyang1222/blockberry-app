@@ -25,7 +25,7 @@ export const generateRandomTransaction = (index: number): Transaction => {
     asset: 'WBTC',
     amount: Math.round(amount * 10000) / 10000, // Round to 4 decimal places
     price: btcPrice,
-    value: Math.round(amount * btcPrice * 100) / 100, // Round to 2 decimal places
+    total: Math.round(amount * btcPrice * 100) / 100, // Round to 2 decimal places
     status: statuses[Math.floor(Math.random() * statuses.length)]
   }
 }

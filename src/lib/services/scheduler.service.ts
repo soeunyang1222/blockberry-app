@@ -85,7 +85,6 @@ export class SchedulerService {
         console.error(`Error in scheduled transaction sync ${taskName}:`, error);
       }
     }, {
-      scheduled: false, // 수동으로 시작
       timezone: 'Asia/Seoul', // 한국 시간대
     });
 

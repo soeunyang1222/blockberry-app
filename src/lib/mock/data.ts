@@ -4,16 +4,18 @@ import { WalletBalance, PortfolioData, Transaction, DCAOrder } from './types'
 // Wallet data
 export const mockWalletBalances: WalletBalance[] = [
   {
-    asset: 'USDC',
     symbol: 'USDC',
+    name: 'USD Coin',
     amount: 1000000,  // 1,000,000 달러 (100만 달러)
-    value: 1000000
+    value: 1000000,
+    price: 1
   },
   {
-    asset: 'Wrapped Bitcoin',
     symbol: 'WBTC',
+    name: 'Wrapped Bitcoin',
     amount: 0.05,
-    value: 2175
+    value: 2175,
+    price: 43500
   }
 ]
 
@@ -28,13 +30,19 @@ export const mockPortfolio: PortfolioData = {
       asset: 'WBTC',
       amount: 0.05,
       value: 2175,
-      change24h: 2.5
+      avgBuyPrice: 43500,
+      currentPrice: 43500,
+      returnAmount: 0,
+      returnRate: 0
     },
     {
       asset: 'USDC',
       amount: 1000000,  // 1,000,000 USDC (100만 달러)
       value: 1000000,
-      change24h: 0
+      avgBuyPrice: 1,
+      currentPrice: 1,
+      returnAmount: 0,
+      returnRate: 0
     }
   ]
 }
@@ -48,7 +56,7 @@ export const mockTransactions: Transaction[] = [
     asset: 'WBTC',
     amount: 0.001,
     price: 43500,
-    value: 43.5,
+    total: 43.5,
     status: 'completed'
   },
   {
@@ -58,7 +66,7 @@ export const mockTransactions: Transaction[] = [
     asset: 'WBTC',
     amount: 0.0015,
     price: 43000,
-    value: 64.5,
+    total: 64.5,
     status: 'completed'
   },
   {
@@ -68,7 +76,7 @@ export const mockTransactions: Transaction[] = [
     asset: 'WBTC',
     amount: 0.002,
     price: 42800,
-    value: 85.6,
+    total: 85.6,
     status: 'completed'
   },
   {
@@ -78,7 +86,7 @@ export const mockTransactions: Transaction[] = [
     asset: 'WBTC',
     amount: 0.0012,
     price: 42500,
-    value: 51,
+    total: 51,
     status: 'completed'
   },
   {
@@ -88,7 +96,7 @@ export const mockTransactions: Transaction[] = [
     asset: 'WBTC',
     amount: 0.0018,
     price: 42000,
-    value: 75.6,
+    total: 75.6,
     status: 'completed'
   },
   {
@@ -98,7 +106,7 @@ export const mockTransactions: Transaction[] = [
     asset: 'WBTC',
     amount: 0.0025,
     price: 41800,
-    value: 104.5,
+    total: 104.5,
     status: 'completed'
   },
   {
@@ -108,7 +116,7 @@ export const mockTransactions: Transaction[] = [
     asset: 'WBTC',
     amount: 0.003,
     price: 41500,
-    value: 124.5,
+    total: 124.5,
     status: 'completed'
   },
   {
@@ -118,7 +126,7 @@ export const mockTransactions: Transaction[] = [
     asset: 'WBTC',
     amount: 0.0022,
     price: 41000,
-    value: 90.2,
+    total: 90.2,
     status: 'completed'
   },
   {
@@ -128,7 +136,7 @@ export const mockTransactions: Transaction[] = [
     asset: 'WBTC',
     amount: 0.0028,
     price: 40800,
-    value: 114.24,
+    total: 114.24,
     status: 'completed'
   },
   {
@@ -138,7 +146,7 @@ export const mockTransactions: Transaction[] = [
     asset: 'WBTC',
     amount: 0.0035,
     price: 40500,
-    value: 141.75,
+    total: 141.75,
     status: 'completed'
   }
 ]
@@ -206,7 +214,7 @@ export const addDCAOrder = (order: Omit<DCAOrder, 'id' | 'createdAt' | 'nextExec
     asset: order.toAsset,
     amount: order.amount / 43500, // Mock BTC price로 계산 (일일 구매량)
     price: 43500,
-    value: order.amount,
+    total: order.amount,
     status: 'completed'
   }
   mockTransactions.unshift(newTransaction) // 최신 거래를 앞에 추가
@@ -237,13 +245,19 @@ export const addDCAOrder = (order: Omit<DCAOrder, 'id' | 'createdAt' | 'nextExec
       asset: 'WBTC',
       amount: btcBalance?.amount || 0,
       value: btcBalance?.value || 0,
-      change24h: 2.5
+      avgBuyPrice: 43500,
+      currentPrice: 43500,
+      returnAmount: 0,
+      returnRate: 0
     },
     {
       asset: 'USDC',
       amount: usdcBalance?.amount || 0,
       value: usdcBalance?.value || 0,
-      change24h: 0
+      avgBuyPrice: 1,
+      currentPrice: 1,
+      returnAmount: 0,
+      returnRate: 0
     }
   ]
   

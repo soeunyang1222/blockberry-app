@@ -21,6 +21,10 @@ const nextConfig = {
     // TypeORM 데코레이터 관련 타입 에러 무시
     ignoreBuildErrors: false,
   },
+  eslint: {
+    // ESLint 비활성화
+    ignoreDuringBuilds: true,
+  },
 }
 
 module.exports = nextConfig

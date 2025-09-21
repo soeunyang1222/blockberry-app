@@ -1,8 +1,17 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ReactNode, useState } from 'react';
+
+// 조건부로 ReactQueryDevtools import
+let ReactQueryDevtools: any = null;
+if (process.env.NODE_ENV === 'development') {
+  try {
+    ReactQueryDevtools = require('@tanstack/react-query-devtools').ReactQueryDevtools;
+  } catch (error) {
+    // devtools가 없어도 빌드가 실패하지 않도록
+  }
+}
 
 export function QueryProvider({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -26,7 +35,7 @@ export function QueryProvider({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
+      {process.env.NODE_ENV === 'development' && ReactQueryDevtools && <ReactQueryDevtools />}
     </QueryClientProvider>
   );
 }
