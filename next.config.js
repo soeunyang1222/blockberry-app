@@ -28,6 +28,8 @@ const nextConfig = {
   // Vercel 배포를 위한 설정
   trailingSlash: false,
   generateEtags: false,
+  poweredByHeader: false,
+  compress: true,
 }
 
 module.exports = nextConfig
