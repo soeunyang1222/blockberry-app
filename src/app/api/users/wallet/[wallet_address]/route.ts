@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { userService } from '@/lib/services/user.service';
 
 interface RouteParams {
   params: {
     wallet_address: string;
   };
 }
+
+// Mock users data
+let mockUsers = [
+  {
+    id: 1,
+    wallet_address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+    virtual_account_address: '0xvirtual123',
+    created_at: new Date().toISOString(),
+  }
+];
 
 /**
  * @swagger
@@ -58,9 +67,11 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { wallet_address } = params;
-    
-    const user = await userService.findByWalletAddress(wallet_address);
-    
+
+    const user = mockUsers.find(u =>
+      u.wallet_address.toLowerCase() === wallet_address.toLowerCase()
+    );
+
     if (!user) {
       return NextResponse.json(
         {
@@ -70,7 +81,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         { status: 404 }
       );
     }
-    
+
     return NextResponse.json({
       success: true,
       data: user,

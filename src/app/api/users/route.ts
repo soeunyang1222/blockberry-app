@@ -1,11 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { userService } from '@/lib/services/user.service';
 import { z } from 'zod';
 
 const CreateUserSchema = z.object({
   wallet_address: z.string().min(1, 'Wallet address is required'),
   virtual_account_address: z.string().optional(),
 });
+
+// Mock data
+let mockUsers: Array<{
+  id: number;
+  wallet_address: string;
+  virtual_account_address: string | null;
+  created_at: string;
+}> = [
+  {
+    id: 1,
+    wallet_address: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+    virtual_account_address: '0xvirtual123',
+    created_at: new Date().toISOString(),
+  }
+];
 
 /**
  * @swagger
@@ -38,10 +52,9 @@ const CreateUserSchema = z.object({
  */
 export async function GET() {
   try {
-    const users = await userService.findAll();
     return NextResponse.json({
       success: true,
-      data: users,
+      data: mockUsers,
     });
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -60,8 +73,8 @@ export async function GET() {
  * /api/users:
  *   post:
  *     tags: [Users]
- *     summary: 사용자 생성
- *     description: 새로운 사용자를 생성합니다.
+ *     summary: 새 사용자 생성
+ *     description: 새로운 사용자를 등록합니다.
  *     requestBody:
  *       required: true
  *       content:
@@ -73,12 +86,12 @@ export async function GET() {
  *             properties:
  *               wallet_address:
  *                 type: string
- *                 description: 지갑 주소
- *                 example: "0x1234567890abcdef1234567890abcdef12345678"
+ *                 description: 사용자 지갑 주소
+ *                 example: "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
  *               virtual_account_address:
  *                 type: string
- *                 description: 가상 계좌 주소 (선택사항)
- *                 example: "VA1234567890"
+ *                 description: 가상 계정 주소 (선택사항)
+ *                 example: "0xVirtualAccount123"
  *     responses:
  *       201:
  *         description: 사용자 생성 성공
@@ -92,74 +105,68 @@ export async function GET() {
  *                   example: true
  *                 data:
  *                   $ref: '#/components/schemas/User'
- *                 message:
- *                   type: string
- *                   example: "User created successfully"
  *       400:
- *         description: 잘못된 요청
+ *         description: 잘못된 요청 (유효성 검증 실패)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       409:
- *         description: 이미 존재하는 지갑 주소
+ *         description: 이미 존재하는 사용자
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       500:
  *         description: 서버 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // 입력 데이터 검증
     const validatedData = CreateUserSchema.parse(body);
-    
-    // 중복 체크: 동일한 wallet_address가 이미 존재하는지 확인
-    const existingUser = await userService.findByWalletAddress(validatedData.wallet_address);
+
+    // Check if user already exists
+    const existingUser = mockUsers.find(u => u.wallet_address === validatedData.wallet_address);
     if (existingUser) {
       return NextResponse.json(
         {
           success: false,
           error: 'User with this wallet address already exists',
-          message: '유저 정보가 이미 존재합니다. 유저 생성에 실패했습니다.',
         },
         { status: 409 }
       );
     }
-    
-    const user = await userService.create({
+
+    // Create new user
+    const newUser = {
+      id: mockUsers.length + 1,
       wallet_address: validatedData.wallet_address,
-      virtual_account_address: validatedData.virtual_account_address,
-    });
-    
-    return NextResponse.json(
-      {
-        success: true,
-        data: user,
-        message: 'User created successfully',
-      },
-      { status: 201 }
-    );
+      virtual_account_address: validatedData.virtual_account_address || null,
+      created_at: new Date().toISOString(),
+    };
+
+    mockUsers.push(newUser);
+
+    return NextResponse.json({
+      success: true,
+      data: newUser,
+    }, { status: 201 });
   } catch (error) {
-    console.error('Error creating user:', error);
-    
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Validation error',
-          details: error.errors,
+          error: error.errors[0].message,
         },
         { status: 400 }
       );
     }
-    
-    if (error instanceof Error && error.message.includes('already exists')) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'User with this wallet address already exists',
-          message: '유저 정보가 이미 존재합니다. 유저 생성에 실패했습니다.',
-        },
-        { status: 409 }
-      );
-    }
-    
+
+    console.error('Error creating user:', error);
     return NextResponse.json(
       {
         success: false,

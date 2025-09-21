@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { savingsVaultService } from '@/lib/services/savings-vault.service';
 import { z } from 'zod';
 
 const CreateSavingsVaultSchema = z.object({
@@ -10,6 +9,21 @@ const CreateSavingsVaultSchema = z.object({
   fiat_symbol: z.string().min(1, 'Fiat symbol is required'),
   active: z.boolean().optional(),
 });
+
+// Mock data
+let mockVaults = [
+  {
+    id: 1,
+    user_id: 1,
+    vault_name: 'BTC Savings',
+    target_token: 'WBTC',
+    amount_fiat: 100,
+    fiat_symbol: 'USDC',
+    active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+];
 
 /**
  * @swagger
@@ -49,36 +63,24 @@ const CreateSavingsVaultSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const user_id = searchParams.get('user_id');
+    const userIdParam = searchParams.get('user_id');
 
-    // user_id는 필수 파라미터
-    if (!user_id) {
+    if (!userIdParam) {
       return NextResponse.json(
         {
           success: false,
-          error: 'user_id parameter is required',
+          error: 'user_id is required',
         },
         { status: 400 }
       );
     }
 
-    const userId = parseInt(user_id);
-    if (isNaN(userId)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid user_id parameter',
-        },
-        { status: 400 }
-      );
-    }
-
-    // 사용자의 모든 저금통 조회
-    const savingsVaults = await savingsVaultService.findByUserId(userId);
+    const userId = parseInt(userIdParam, 10);
+    const userVaults = mockVaults.filter(v => v.user_id === userId);
 
     return NextResponse.json({
       success: true,
-      data: savingsVaults,
+      data: userVaults,
     });
   } catch (error) {
     console.error('Error fetching savings vaults:', error);
@@ -119,22 +121,22 @@ export async function GET(request: NextRequest) {
  *               vault_name:
  *                 type: string
  *                 description: 저금통 이름
- *                 example: "My Bitcoin Savings"
+ *                 example: "BTC 저금통"
  *               target_token:
  *                 type: string
- *                 description: 대상 토큰
+ *                 description: 목표 토큰 (저축할 암호화폐)
  *                 example: "BTC"
  *               amount_fiat:
  *                 type: number
- *                 description: 법정화폐 금액
- *                 example: 1000.00
+ *                 description: 저금 금액 (법정화폐 기준)
+ *                 example: 100
  *               fiat_symbol:
  *                 type: string
  *                 description: 법정화폐 심볼
- *                 example: "USDC"
+ *                 example: "USD"
  *               active:
  *                 type: boolean
- *                 description: 활성 상태
+ *                 description: 활성화 상태 (선택사항, 기본값 true)
  *                 example: true
  *     responses:
  *       201:
@@ -149,9 +151,6 @@ export async function GET(request: NextRequest) {
  *                   example: true
  *                 data:
  *                   $ref: '#/components/schemas/SavingsVault'
- *                 message:
- *                   type: string
- *                   example: "Savings vault created successfully"
  *       400:
  *         description: 잘못된 요청
  *       500:
@@ -160,34 +159,34 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // 입력 데이터 검증
     const validatedData = CreateSavingsVaultSchema.parse(body);
-    
-    const savingsVault = await savingsVaultService.create(validatedData);
-    
-    return NextResponse.json(
-      {
-        success: true,
-        data: savingsVault,
-        message: 'Savings vault created successfully',
-      },
-      { status: 201 }
-    );
+
+    const newVault = {
+      id: mockVaults.length + 1,
+      ...validatedData,
+      active: validatedData.active !== undefined ? validatedData.active : true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    mockVaults.push(newVault);
+
+    return NextResponse.json({
+      success: true,
+      data: newVault,
+    }, { status: 201 });
   } catch (error) {
-    console.error('Error creating savings vault:', error);
-    
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Validation error',
-          details: error.errors,
+          error: error.errors[0].message,
         },
         { status: 400 }
       );
     }
-    
+
+    console.error('Error creating savings vault:', error);
     return NextResponse.json(
       {
         success: false,
