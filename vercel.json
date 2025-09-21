@@ -4,7 +4,8 @@
   "installCommand": "pnpm install",
   "functions": {
     "src/app/api/**/*.ts": {
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs20.x",
+      "maxDuration": 60
     }
   },
   "build": {
