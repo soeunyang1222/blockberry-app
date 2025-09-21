@@ -44,7 +44,7 @@
     "zod": "^3.22.0"
   },
   "engines": {
-    "node": "18.x"
+    "node": "22.x"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.7",
