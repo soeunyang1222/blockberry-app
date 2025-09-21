@@ -1,77 +1,86 @@
-# 🫐 Blockberry - Sui DCA Platform
+# 🚀 SuiStack - Sui DCA Platform
 
-**Next.js 풀스택 애플리케이션**으로 구축된 Sui 블록체인 기반 달러 코스트 애버리징(DCA) 플랫폼입니다. Cetus Aggregator를 활용하여 Sui DEX들 사이에서 USDC → Wrapped BTC로 가장 저렴한 스왑을 찾아 실행합니다.
+**Next.js 풀스택 애플리케이션**으로 구축된 Sui 블록체인 기반 달러 코스트 애버리징(DCA) 플랫폼입니다. DeepBook V3를 활용하여 USDC에서 BTC/SUI로 자동화된 정액 분할 매수를 제공합니다.
+
+*[English README](./README_EN.md)*
 
 ## 🎯 프로젝트 개요
 
-이 플랫폼은 해커톤용으로 개발된 DCA 플랫폼으로, 다음과 같은 기능을 제공합니다:
+SuiStack은 Sui 생태계의 강력한 DeepBook V3 프로토콜을 활용한 Non-custodial DCA 플랫폼입니다:
 
-- **지갑 연결 및 사용자 관리**
-- **BTC 적립 설정 생성** (매수당 USDC 금액, 빈도, 시간)
-- **USDC를 스마트 컨트랙트에 예치**
-- **자동/스케줄 매수** (현재는 수동 또는 시뮬레이션)
-- **누적된 BTC 확인**
-- **가상의 CEX 매수와 비교** (업비트/빗썸 고정 시각 매수)
-- **사용자 거래내역 표시**
-- **"알파" 표시** (가장 저렴한 경로로 얻은 추가 BTC)
-- **DeepBook 거래 자동 동기화** (사용자 지갑 주소 기반)
-- **실시간 트랜잭션 모니터링** (Sui 메인넷/테스트넷)
+- **Sui 지갑 연결 및 사용자 관리**
+- **DCA 저금고 생성** (매수 금액, 주기, 대상 토큰 설정)
+- **Balance Manager 기반 자금 관리**
+- **TradeCap 위임을 통한 자동 거래**
+- **실시간 거래 내역 추적**
+- **USDC → BTC/SUI 자동 매수**
+- **투명한 성과 분석 및 리포팅**
+- **완전 자동화된 스케줄 실행**
 
 ## 🏗️ 기술 스택
 
-### 🚀 최신 업데이트 (2024-09-20)
+### 🚀 현재 아키텍처 (2024-09-21)
 
-프로젝트가 **NestJS**에서 **Next.js 풀스택 애플리케이션**으로 마이그레이션되었습니다!
+**Enterprise-grade** Next.js 풀스택 애플리케이션으로 구축된 완전한 DCA 생태계:
 
 ```yaml
 Frontend & Backend:
   - Next.js 14+ (App Router)
   - React 18 + TypeScript
-  - Tailwind CSS
+  - Tailwind CSS + Radix UI
+  - React Query (TanStack Query)
 
 Database & ORM:
   - PostgreSQL (Neon Cloud)
-  - TypeORM
+  - TypeORM with Full Entity Relations
 
-Blockchain:
-  - Sui Network (메인넷/테스트넷)
-  - DeepBook DEX 연동
-  - Cetus Protocol (예정)
+Blockchain Integration:
+  - Sui Network (Devnet/Mainnet)
+  - DeepBook V3 SDK
+  - Sui dApp Kit & Wallet Standard
 
-Development:
-  - TypeScript
+Development & Deployment:
+  - TypeScript with Strict Mode
   - ESLint + Prettier
-  - pnpm
+  - pnpm Package Manager
+  - Bull Queue for Background Jobs
 ```
 
-## 📁 새로운 프로젝트 구조
+## 📁 프로젝트 구조
 
 ```
-blockberry-app/
+suistack-app/
 ├── src/
 │   ├── app/                    # Next.js App Router
-│   │   ├── api/               # API Routes (기존 NestJS 컨트롤러들)
-│   │   │   ├── users/
-│   │   │   ├── savings-vault/
-│   │   │   ├── deposits/
-│   │   │   ├── trades/
-│   │   │   └── scheduler/     # 트랜잭션 동기화 스케줄러
-│   │   ├── dashboard/         # DCA 대시보드 페이지들
-│   │   ├── layout.tsx         # 루트 레이아웃
-│   │   └── page.tsx           # 홈페이지
-│   ├── lib/                   # 라이브러리 & 유틸리티
-│   │   ├── database/          # TypeORM 설정 & 엔티티
-│   │   ├── services/          # 비즈니스 로직
-│   │   │   ├── transaction-sync.service.ts  # 트랜잭션 동기화
-│   │   │   ├── sui-rpc.service.ts          # Sui RPC 연동
-│   │   │   └── trade.service.ts            # 거래 관리
-│   │   └── utils/
-│   ├── components/            # React 컴포넌트
-│   └── types/                # TypeScript 타입 정의
-├── docs/                     # 문서
-├── package.json
-├── next.config.js
-└── tailwind.config.js
+│   │   ├── api/               # API Routes
+│   │   │   ├── dca/           # DCA 관련 API
+│   │   │   │   ├── balance-manager/
+│   │   │   │   ├── deposit/
+│   │   │   │   ├── execute/
+│   │   │   │   └── trade/
+│   │   │   ├── users/         # 사용자 관리
+│   │   │   ├── savings-vault/ # 저금고 관리
+│   │   │   └── trades/        # 거래 내역
+│   │   ├── dashboard/         # DCA 대시보드
+│   │   ├── dca/              # DCA 설정 페이지
+│   │   ├── investment/       # 투자 포트폴리오
+│   │   └── api-docs/         # Swagger 문서
+│   ├── components/           # React 컴포넌트
+│   │   ├── dca/             # DCA 관련 UI
+│   │   ├── investment/      # 투자 관련 UI
+│   │   ├── dashboard/       # 대시보드 UI
+│   │   ├── wallet/          # 지갑 연결 UI
+│   │   └── ui/              # 공통 UI 컴포넌트
+│   ├── lib/                 # 라이브러리 & 유틸리티
+│   │   ├── database/        # TypeORM 설정 & 엔티티
+│   │   ├── deepbook/        # DeepBook V3 통합
+│   │   └── services/        # 비즈니스 로직
+│   ├── hooks/               # React Hooks
+│   ├── providers/           # Context Providers
+│   └── types/               # TypeScript 타입 정의
+├── docs/                    # 프로젝트 문서
+├── ref/                     # 참조 구현 예시
+└── 설정 파일들...
 ```
 
 ## 🚀 빠른 시작
@@ -98,8 +107,7 @@ cp env.local.example .env.local
 **필수 환경 변수:**
 ```bash
 DATABASE_URL="postgresql://username:password@hostname:port/database?sslmode=require"
-SUI_RPC_URL="https://fullnode.mainnet.sui.io:443"  # 또는 테스트넷
-SUI_NETWORK="mainnet"  # 또는 "testnet"
+SUI_NETWORK="devnet"
 NODE_ENV="development"
 ```
 
@@ -116,46 +124,38 @@ pnpm start
 
 ## 🌐 접속 URL
 
-애플리케이션 실행 후 다음 URL에서 확인할 수 있습니다:
+SuiStack 플랫폼의 주요 인터페이스:
 
-- **웹 애플리케이션**: http://localhost:3000
-- **대시보드**: http://localhost:3000/dashboard
-- **API 엔드포인트**: http://localhost:3000/api/*
+- **🏠 홈페이지**: http://localhost:3000
+- **📊 대시보드**: http://localhost:3000/dashboard  
+- **💰 DCA 설정**: http://localhost:3000/dca
+- **📈 투자 포트폴리오**: http://localhost:3000/investment
+- **📚 API 문서**: http://localhost:3000/api-docs (Swagger UI)
 
 ## 🔌 API 엔드포인트
 
+### DCA 핵심 API (`/api/dca`)
+- `POST /api/dca/balance-manager` - Balance Manager 생성
+- `POST /api/dca/deposit` - USDC 예치 및 TradeCap 위임
+- `POST /api/dca/trade` - 수동 거래 실행
+- `POST /api/dca/execute` - DCA 주문 실행 (자동화)
+
 ### 사용자 관리 (`/api/users`)
-- `POST /api/users` - 사용자 생성
-- `GET /api/users` - 모든 사용자 조회
-- `GET /api/users/[id]` - 사용자 ID로 조회
-- `GET /api/users/wallet/[wallet_address]` - 지갑 주소로 조회
-- `DELETE /api/users/[id]` - 사용자 삭제
+- `POST /api/users` - 사용자 생성 (지갑 기반)
+- `GET /api/users` - 사용자 목록 조회
+- `GET /api/users/[id]` - 사용자 상세 조회
+- `GET /api/users/wallet/[wallet_address]` - 지갑으로 사용자 조회
 
 ### 저금고 관리 (`/api/savings-vault`)
-- `POST /api/savings-vault` - 저금고 생성
-- `GET /api/savings-vault` - 모든 저금고 조회
-- `GET /api/savings-vault/[vault_id]` - 저금고 ID로 조회
-- `PATCH /api/savings-vault/[vault_id]` - 저금고 수정
-- `DELETE /api/savings-vault/[vault_id]` - 저금고 삭제
+- `POST /api/savings-vault` - DCA 저금고 생성
+- `GET /api/savings-vault` - 사용자별 저금고 조회
+- `GET /api/savings-vault/[vault_id]` - 저금고 상세 정보
+- `PATCH /api/savings-vault/[vault_id]` - 저금고 설정 수정
 
-### 입금 관리 (`/api/deposits`)
-- `POST /api/deposits` - 입금 생성
-- `GET /api/deposits` - 모든 입금 조회
-- `GET /api/deposits/[deposit_id]` - 입금 조회
-
-### 거래 관리 (`/api/trades`)
-- `POST /api/trades` - 거래 생성
-- `GET /api/trades` - 모든 거래 조회
-- `GET /api/trades?recent=true&limit=10` - 최근 거래 조회
-- `GET /api/trades?user_id=1` - 사용자별 거래 조회
-- `GET /api/trades?vault_id=1` - 저금고별 거래 조회
-
-### 스케줄러 관리 (`/api/scheduler`)
-- `GET /api/scheduler` - 스케줄러 상태 조회
-- `POST /api/scheduler` - 스케줄러 초기화/수동 동기화
-  - `{"action": "initialize"}` - 스케줄러 초기화
-  - `{"action": "manual_sync", "limit": 100}` - 수동 동기화
-  - `{"action": "test_transaction", "tx_digest": "..."}` - 특정 트랜잭션 테스트
+### 거래 내역 (`/api/trades`)  
+- `GET /api/trades` - 거래 내역 조회
+- `GET /api/trades/[trade_id]` - 거래 상세 정보
+- `POST /api/trades` - 거래 기록 생성
 
 ## 📊 API 응답 형식
 
@@ -177,54 +177,30 @@ pnpm start
 }
 ```
 
-## 🔄 트랜잭션 동기화 시스템
-
-### 자동 동기화 프로세스
-1. **사용자 지갑 주소 수집**: 등록된 모든 사용자의 지갑 주소를 가져옵니다
-2. **트랜잭션 조회**: 각 지갑 주소별로 Sui RPC를 통해 최근 트랜잭션을 조회합니다
-3. **DeepBook 거래 필터링**: 트랜잭션 이벤트에서 DeepBook 관련 거래를 감지합니다
-4. **DB 저장**: DeepBook 거래로 확인되면 `trades` 테이블에 자동 저장됩니다
-
-### 지원하는 네트워크
-- **메인넷**: `https://fullnode.mainnet.sui.io:443`
-- **테스트넷**: `https://fullnode.testnet.sui.io:443`
-
-### 테스트 방법
-```bash
-# 특정 트랜잭션 분석 (DB 저장 안함)
-curl -X POST http://localhost:3000/api/scheduler \
-  -H "Content-Type: application/json" \
-  -d '{
-    "action": "test_transaction",
-    "tx_digest": "EW3wKriKhoJ7AoDrRLb4HkvXj8Z2xZpsvQ6GbEveNCjd"
-  }'
-
-# 트랜잭션 분석 + DB 저장
-curl -X POST http://localhost:3000/api/scheduler \
-  -H "Content-Type: application/json" \
-  -d '{
-    "action": "test_transaction",
-    "tx_digest": "EW3wKriKhoJ7AoDrRLb4HkvXj8Z2xZpsvQ6GbEveNCjd",
-    "save_to_db": true
-  }'
-```
-
 ## 🗄️ 데이터베이스 스키마
 
-### 주요 테이블
-- `users` - 사용자 정보 (지갑 주소 기반)
-- `savings_vault` - DCA 저금고 설정
-- `deposits` - 입금 내역
-- `trades` - 거래 내역 (DeepBook 동기화 포함)
+### 핵심 엔티티
+- **`users`** - 사용자 정보 (Sui 지갑 주소 기반)
+- **`savings_vault`** - DCA 설정 및 저금고 관리
+- **`trades`** - 거래 내역 및 성과 추적
+- **`balance_managers`** - DeepBook Balance Manager 관리 (예정)
+- **`dca_orders`** - 자동화된 DCA 주문 관리 (예정)
 
-### 관계도
+### 엔티티 관계도
+```mermaid
+erDiagram
+    users ||--o{ savings_vault : "owns"
+    users ||--o{ trades : "executes"
+    savings_vault ||--o{ trades : "generates"
+    users ||--o{ balance_managers : "manages"
+    balance_managers ||--o{ dca_orders : "executes"
+    dca_orders ||--o{ trades : "creates"
 ```
-users (1) ←→ (N) savings_vault
-users (1) ←→ (N) deposits  
-users (1) ←→ (N) trades
-savings_vault (1) ←→ (N) deposits
-savings_vault (1) ←→ (N) trades
-```
+
+### 주요 필드
+- **Users**: `wallet_address` (unique), `virtual_account_address`
+- **SavingsVault**: 매수 금액, 주기, 대상 토큰, 실행 상태
+- **Trades**: 거래량, 가격, 수수료, 블록체인 해시
 
 ## 🛠️ 개발 스크립트
 
@@ -245,49 +221,64 @@ pnpm build
 pnpm start
 ```
 
-## 🔄 마이그레이션 히스토리
+## 🔄 프로젝트 진화
+
+### v2.0 → v3.0 (2024-09-21) - SuiStack 리브랜딩
+- **Blockberry** → **SuiStack** 서비스명 변경
+- **DeepBook V3** 프로토콜 통합 시작
+- **Balance Manager** 아키텍처 도입
+- Enterprise-grade 기능 강화
 
 ### v1.0 → v2.0 (2024-09-20)
-- **NestJS** → **Next.js App Router**로 완전 마이그레이션
-- 프론트엔드와 백엔드 통합
-- API Routes 구조로 변경
-- TypeORM 연동 유지
-- React 기반 사용자 인터페이스 추가
+- **NestJS** → **Next.js 풀스택** 마이그레이션
+- 통합 프론트엔드/백엔드 아키텍처
+- React 기반 현대적 UI/UX
 
-## 🚧 개발 상태
+## 🚧 현재 개발 상태
 
-### ✅ 완료된 기능
-- [x] Next.js App Router 프로젝트 구조
-- [x] TypeORM + PostgreSQL 데이터베이스
-- [x] 사용자 관리 API 
-- [x] 저금고 관리 API
-- [x] 입금/거래 관리 API
-- [x] 기본 대시보드 UI
-- [x] API Routes 변환 완료
-- [x] Sui RPC 서비스 연동
-- [x] 트랜잭션 동기화 서비스
-- [x] DeepBook 거래 자동 감지
-- [x] 스케줄러 API (초기화/수동 동기화/테스트)
+### ✅ 완료된 기능 (Production Ready)
+- [x] **프레임워크**: Next.js 14 + App Router
+- [x] **데이터베이스**: PostgreSQL + TypeORM
+- [x] **사용자 관리**: 지갑 연결 및 계정 시스템
+- [x] **DCA 설정**: 저금고 생성 및 관리 API
+- [x] **UI 컴포넌트**: Tailwind + Radix UI 시스템
+- [x] **지갑 통합**: Sui Wallet Standard 연결
 
-### 🔄 진행 중인 기능
-- [ ] DeepBook 이벤트 데이터 파싱 로직 완성
-- [ ] 실제 거래 금액/토큰 정보 추출
-- [ ] 저금고 생성/관리 UI
-- [ ] 포트폴리오 대시보드
-- [ ] 가격 API 연동
+### 🔄 개발 중인 기능 (In Progress)
+- [ ] **DeepBook V3**: Balance Manager 구현
+- [ ] **자동화**: DCA 주문 실행 시스템  
+- [ ] **거래 엔진**: USDC → BTC/SUI 스왑
+- [ ] **포트폴리오**: 성과 추적 대시보드
 
-### 📋 예정된 기능
-- [ ] Cetus Aggregator 통합
-- [ ] 실시간 가격 피드
-- [ ] 자동 스케줄링 시스템 (주기적 동기화)
-- [ ] CEX 가격 비교
-- [ ] 모바일 반응형 UI 개선
-- [ ] 트랜잭션 알림 시스템
+### 📋 백로그 (Planned)
+- [ ] **실시간 데이터**: 가격 피드 통합
+- [ ] **알림 시스템**: Discord/Telegram 봇
+- [ ] **고급 분석**: CEX vs DEX 성과 비교
+- [ ] **모바일 최적화**: PWA 지원
+- [ ] **보안 강화**: Multi-sig 지원
 
 ## 🤝 기여하기
 
-이 프로젝트는 해커톤용 PoC입니다. 기여나 제안사항이 있으시면 이슈를 생성해 주세요.
+SuiStack은 Sui 생태계의 DCA 솔루션으로 지속적으로 발전하고 있습니다:
+
+### 💡 기여 방식
+- **이슈 제출**: 버그 리포트나 기능 제안
+- **Pull Request**: 코드 개선이나 새로운 기능
+- **문서화**: API 문서나 사용자 가이드 개선
+- **테스트**: 다양한 환경에서의 테스트 결과 공유
+
+### 🎯 우선순위 영역
+1. **DeepBook V3 통합** - Balance Manager 구현
+2. **자동화 시스템** - 스케줄러 및 실행 엔진
+3. **UI/UX 개선** - 사용자 경험 최적화
+4. **성능 최적화** - 대용량 처리 및 응답성
+
+---
 
 ## 📄 라이선스
 
-ISC
+MIT License - 오픈소스 프로젝트로 자유롭게 사용, 수정, 배포 가능합니다.
+
+---
+
+### 🚀 SuiStack과 함께 Sui 생태계의 미래를 만들어보세요!
