@@ -25,6 +25,9 @@ const nextConfig = {
     // ESLint 비활성화
     ignoreDuringBuilds: true,
   },
+  // Vercel 배포를 위한 설정
+  trailingSlash: false,
+  generateEtags: false,
 }
 
 module.exports = nextConfig
