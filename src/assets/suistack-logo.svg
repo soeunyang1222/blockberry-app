@@ -1,0 +1,26 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 
+    Suistack Logo SVG Icon
+    Concept: A soft, natural stack of blocks, representing steady, gentle growth.
+    Brand Color: #6ECF28
+  -->
+
+
+  <g transform="translate(0, -5)">
+    <!-- Bottom Box -->
+    <rect x="25" y="70" width="50" height="20" rx="8" fill="#6ECF28"/>
+    
+    <!-- Second Box from bottom -->
+    <rect x="20" y="50" width="48" height="20" rx="8" fill="#6ECF28" transform="rotate(-5 44 61)"/>
+    
+    <!-- Third Box from bottom -->
+    <rect x="30" y="30" width="42" height="20" rx="8" fill="#6ECF28" transform="rotate(3 51 41)"/>
+    
+    <!-- Top Box -->
+    <rect x="37" y="12" width="30" height="20" rx="8" fill="#6ECF28" transform="rotate(-8 48 21)"/>
+
+      <!-- Playful Text above the logo -->
+<text x="50" y="18" font-family="'Comic Sans MS', cursive, sans-serif" font-size="14" font-weight="bold" fill="#000000" text-anchor="middle" transform="rotate(-8 50 18)">SuiStack</text>
+  </g>
+</svg>
+
