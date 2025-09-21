@@ -1,164 +1,109 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { savingsVaultService } from '@/lib/services/savings-vault.service';
 
-interface RouteParams {
-  params: {
-    vault_id: string;
-  };
-}
+// Mock vaults data
+let mockVaults = [
+  {
+    id: 1,
+    user_id: 1,
+    vault_name: 'BTC Savings',
+    target_token: 'WBTC',
+    amount_fiat: 100,
+    fiat_symbol: 'USDC',
+    active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+];
 
-/**
- * @swagger
- * /api/savings-vault/{vault_id}:
- *   get:
- *     tags: [SavingsVault]
- *     summary: 특정 저금통 조회
- *     description: 저금통 ID로 특정 저금통 정보를 조회합니다.
- *     parameters:
- *       - in: path
- *         name: vault_id
- *         required: true
- *         schema:
- *           type: integer
- *         description: 저금통 ID
- *         example: 1
- *     responses:
- *       200:
- *         description: 저금통 조회 성공
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 data:
- *                   $ref: '#/components/schemas/SavingsVault'
- *       400:
- *         description: 잘못된 저금통 ID
- *       404:
- *         description: 저금통을 찾을 수 없음
- *       500:
- *         description: 서버 오류
- */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { vault_id: string } }
+) {
   try {
-    const vault_id = parseInt(params.vault_id);
-    
-    if (isNaN(vault_id)) {
+    const vaultId = parseInt(params.vault_id, 10);
+    const vault = mockVaults.find(v => v.id === vaultId);
+
+    if (!vault) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid vault ID',
-        },
-        { status: 400 }
-      );
-    }
-    
-    const savingsVault = await savingsVaultService.findOne(vault_id);
-    
-    if (!savingsVault) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Savings vault not found',
-        },
+        { success: false, error: 'Vault not found' },
         { status: 404 }
       );
     }
-    
+
     return NextResponse.json({
       success: true,
-      data: savingsVault,
+      data: vault,
     });
   } catch (error) {
-    console.error('Error fetching savings vault:', error);
+    console.error('Error fetching vault:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch savings vault',
-      },
+      { success: false, error: 'Failed to fetch vault' },
       { status: 500 }
     );
   }
 }
 
-/**
- * @swagger
- * /api/savings-vault/{vault_id}:
- *   delete:
- *     tags: [SavingsVault]
- *     summary: 저금통 삭제
- *     description: 특정 저금통을 삭제합니다.
- *     parameters:
- *       - in: path
- *         name: vault_id
- *         required: true
- *         schema:
- *           type: integer
- *         description: 저금통 ID
- *     responses:
- *       200:
- *         description: 저금통 삭제 성공
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: "Savings vault deleted successfully"
- *       400:
- *         description: 잘못된 요청
- *       404:
- *         description: 저금통을 찾을 수 없음
- *       500:
- *         description: 서버 오류
- */
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { vault_id: string } }
+) {
   try {
-    const vault_id = parseInt(params.vault_id);
-    
-    if (isNaN(vault_id)) {
+    const vaultId = parseInt(params.vault_id, 10);
+    const body = await request.json();
+
+    const index = mockVaults.findIndex(v => v.id === vaultId);
+    if (index === -1) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid vault ID',
-        },
-        { status: 400 }
-      );
-    }
-    
-    await savingsVaultService.remove(vault_id);
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Savings vault deleted successfully',
-    });
-  } catch (error) {
-    console.error('Error deleting savings vault:', error);
-    
-    if (error instanceof Error && error.message.includes('not found')) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Savings vault not found',
-        },
+        { success: false, error: 'Vault not found' },
         { status: 404 }
       );
     }
-    
+
+    mockVaults[index] = {
+      ...mockVaults[index],
+      ...body,
+      updated_at: new Date().toISOString(),
+    };
+
+    return NextResponse.json({
+      success: true,
+      data: mockVaults[index],
+    });
+  } catch (error) {
+    console.error('Error updating vault:', error);
     return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to delete savings vault',
-      },
+      { success: false, error: 'Failed to update vault' },
       { status: 500 }
     );
   }
 }
 
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { vault_id: string } }
+) {
+  try {
+    const vaultId = parseInt(params.vault_id, 10);
+    const index = mockVaults.findIndex(v => v.id === vaultId);
+
+    if (index === -1) {
+      return NextResponse.json(
+        { success: false, error: 'Vault not found' },
+        { status: 404 }
+      );
+    }
+
+    mockVaults.splice(index, 1);
+
+    return NextResponse.json({
+      success: true,
+      message: 'Vault deleted successfully',
+    });
+  } catch (error) {
+    console.error('Error deleting vault:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to delete vault' },
+      { status: 500 }
+    );
+  }
+}

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { tradeService } from '@/lib/services/trade.service';
 import { z } from 'zod';
 
 const CreateTradeSchema = z.object({
@@ -13,6 +12,23 @@ const CreateTradeSchema = z.object({
   tx_hash: z.string().min(1, 'Transaction hash is required'),
   cycle_index: z.number().positive('Cycle index must be positive'),
 });
+
+// Mock data
+let mockTrades = [
+  {
+    id: 1,
+    vault_id: 1,
+    user_id: 1,
+    fiat_amount: 100,
+    fiat_symbol: 'USDC',
+    token_symbol: 'WBTC',
+    token_amount: 0.00105,
+    price_executed: 95238.10,
+    tx_hash: '0xabc123...',
+    cycle_index: 1,
+    created_at: new Date().toISOString(),
+  }
+];
 
 /**
  * @swagger
@@ -69,27 +85,22 @@ export async function GET(request: NextRequest) {
     const recent = searchParams.get('recent');
     const limit = searchParams.get('limit');
 
-    let trades;
-    
-    // 최근 거래내역 조회
+    let trades = [...mockTrades];
+
+    // Filter by user_id or vault_id
+    if (user_id) {
+      trades = trades.filter(t => t.user_id === parseInt(user_id));
+    } else if (vault_id) {
+      trades = trades.filter(t => t.vault_id === parseInt(vault_id));
+    }
+
+    // Sort by created_at desc
+    trades.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    // Apply limit if recent
     if (recent === 'true') {
       const limitNum = limit ? parseInt(limit) : 10;
-      if (user_id) {
-        trades = await tradeService.getRecentTradesByUser(parseInt(user_id), limitNum);
-      } else if (vault_id) {
-        trades = await tradeService.getRecentTradesByVault(parseInt(vault_id), limitNum);
-      } else {
-        trades = await tradeService.getRecentTrades(undefined, undefined, limitNum);
-      }
-    } else {
-      // 기존 거래내역 조회
-      if (user_id) {
-        trades = await tradeService.findByUserId(parseInt(user_id));
-      } else if (vault_id) {
-        trades = await tradeService.findByVaultId(parseInt(vault_id));
-      } else {
-        trades = await tradeService.findAll();
-      }
+      trades = trades.slice(0, limitNum);
     }
 
     return NextResponse.json({
@@ -192,12 +203,18 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // 입력 데이터 검증
     const validatedData = CreateTradeSchema.parse(body);
-    
-    const trade = await tradeService.create(validatedData);
-    
+
+    const trade = {
+      id: mockTrades.length + 1,
+      ...validatedData,
+      created_at: new Date().toISOString(),
+    };
+
+    mockTrades.push(trade);
+
     return NextResponse.json(
       {
         success: true,
@@ -208,7 +225,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('Error creating trade:', error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
@@ -219,7 +236,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     return NextResponse.json(
       {
         success: false,
@@ -229,4 +246,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
