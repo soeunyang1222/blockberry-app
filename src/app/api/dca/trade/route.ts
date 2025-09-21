@@ -28,7 +28,7 @@ import { DeepBookMarketMaker, BalanceManagerConfig } from '@/lib/deepbook/DeepBo
  *                 description: Trade Cap ID
  *               poolKey:
  *                 type: string
- *                 description: 풀 키 (예: SUI_USDC)
+ *                 description: Pool key for trading pair like SUI_USDC
  *               amount:
  *                 type: number
  *                 description: 거래할 금액

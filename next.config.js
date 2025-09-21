@@ -25,7 +25,6 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   // Vercel 배포를 위한 설정
-  output: 'standalone',
   trailingSlash: false,
   generateEtags: false,
   poweredByHeader: false,
